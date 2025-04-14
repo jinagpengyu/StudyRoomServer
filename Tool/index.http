@@ -1,0 +1,120 @@
+
+###
+POST http://localhost:30002/api/TodayAndTomorrow
+Content-Type: application/json
+
+###
+POST http://localhost:30002/Order/Seat/SetSeatNum
+Content-Type: application/json
+
+{
+    "data": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+}
+###
+POST http://localhost:30002/Order/Seat/NotOrder
+Content-Type: application/json
+
+{
+  "date": "2025-03-27"
+}
+
+###获取用户操作记录
+POST http://localhost:30002/api/user/operations
+Content-Type: application/json
+Cookie: email=1770693880@qq.com
+
+###获取用户名和邮箱
+POST http://localhost:30002/api/userInfo
+Content-Type: application/json
+Cookie: email=1770693880@qq.com;username=jpy1;
+
+###修改用户名
+POST http://localhost:30002/api/user/change/username
+Content-Type: application/json
+Cookie: email=1770693880@qq.com;
+
+{
+    "username": "jpy2"
+}
+
+###获取所有通知
+POST http://localhost:30002/api/getAllPublishNotice
+Content-Type: application/json
+Cookie: email=1770693880@qq.com;username=jpy2;
+
+###管理员发布一条新通告
+POST http://localhost:30002/admin/new_notice
+Content-Type: application/json
+Cookie: email=931930201@qq.com;
+
+{
+  "formData": {
+    "title": "测试",
+    "data": "这是一个测试",
+    "status": "已发布",
+    "publishDate": "2025-04-02"
+  }
+}
+
+###添加一条新公约
+POST http://localhost:30002/admin/new_convention
+Content-Type: application/json
+Cookie: email=931930201@qq.com;
+
+{
+  "formData": {
+    "data": "这是一个测试",
+    "publishDate": "2025-04-02"
+  }
+}
+
+###返回status为true的所有公告
+POST http://localhost:30002/admin/all_convention
+Content-Type: application/json
+
+
+
+###管理员请求特定日期的座位预约情况
+POST http://localhost:30002/admin/get_seat_info
+Content-Type: application/json
+
+{
+  "selectDate": "2025-04-08"
+}
+
+###管理员请求所有用户的信息
+POST http://localhost:30002/admin/get_user_info
+Content-Type: application/json
+
+
+###管理员请求用户的操作记录
+POST http://localhost:30002/admin/get_user_operation_log
+Content-Type: application/json
+
+{
+  "email": "1770693880@qq.com"
+}
+
+###测试ObjectId
+POST http://localhost:30002/test/add/user
+Content-Type: application/json
+
+{
+  "username": "jpy",
+  "password": "1234567"
+}
+
+###
+POST http://localhost:30002/test2
+Content-Type: application/json
+
+###测试创建新用户
+POST  http://localhost:30002/api/register
+Content-Type: application/json
+
+{
+  "name": "test1",
+  "email": "test1@qq.com",
+  "password": "123456",
+  "phone": "12345678901"
+}
