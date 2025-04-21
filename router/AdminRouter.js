@@ -1,21 +1,28 @@
 const express = require('express');
 const adminRouter = express.Router();
 const { getNewCollection } = require('../config/mongoDB')
+const {TodayAndTomorrow, NowYYMMDDString} = require("../Tool/MyDate");
+const {ObjectId} = require("mongodb");
+const {
+    CreateNewConvention,
+    GetAllConventions
+} = require('../Services/ConventionService');
+const ReportService = require('../Services/ReportService');
 // 添加一条新公告
 adminRouter.post('/admin/new_notice',async (req,res) => {
-    const {formData} = req.body;
-    console.log(formData);
+    const {title,data} = req.body;
     const InsertJson = {
-        email: req.cookies.email,
-        title:formData.title,
-        data:formData.data,
-        status:formData.status,
-        publishDate: formData.publishDate
+        title:title,
+        data:data,
+        status:"已发布",
+        publishDate: NowYYMMDDString(),
+        type:"公告"
     }
     const collection = getNewCollection('notice');
     await collection.insertOne(InsertJson);
     return res.json({
-        status:200
+        status:200,
+        message:"添加成功"
     });
 })
 //获取所有公告
@@ -33,32 +40,26 @@ adminRouter.post('/admin/get_all_notice',async (req,res) => {
         data:""
     })
 })
-// 添加一条新公约
-adminRouter.post('/admin/new_convention',async (req,res) => {
-    const {formData} = req.body;
-    const collection = getNewCollection('convention');
-    await collection.insertOne({
-        data:formData.data,
-        publishDate: formData.publishDate
-    });
-    return res.json({
+//修改公告的状态，已发布或者隐藏
+adminRouter.post('/admin/change_notice_status',async (req,res) => {
+    const {id,status} = req.body;
+    const noticeCollection = getNewCollection('notice');
+    await noticeCollection.updateOne({
+        _id:new ObjectId(id)
+    },{
+        $set:{
+            status:status
+        }
+    })
+    res.json({
         status:200,
-        meg:"添加成功"
+        message:"修改成功"
     })
 })
-// 返回所有公约
-adminRouter.post('/admin/all_convention',async (req,res) => {
-    const collection = getNewCollection('convention');
-    const result = await collection.find(
-        {
-            status:{$ne:false}
-        }
-    ).toArray();
-    return res.json({
-        status:200,
-        data:result
-    });
-})
+// 添加一条新公约
+adminRouter.post('/admin/new_convention',CreateNewConvention)
+// 获取所有的公约
+adminRouter.post('/admin/all_convention',GetAllConventions)
 //预约一个座位
 adminRouter.post('/admin/reserve_seat',async (req,res) => {
     // const {seat_id, email, formDate} = req.body;
@@ -149,4 +150,46 @@ adminRouter.post('/admin/get_user_operation_log',async (req,res) => {
         }).toArray()
     })
 })
+// 创建所有的座位
+adminRouter.post('/admin/create_seats',async (req,res) => {
+    const seatCollection = getNewCollection('seats');
+    for(let i = 1 ; i <= 30 ; i ++){
+        await seatCollection.insertOne({
+            seat_id: i,
+            seat_status: "Available"
+        })
+    }
+    res.json({
+        status:200
+    })
+})
+// 返回所有的座位信息
+adminRouter.post('/admin/getAllSeats', async (req,res) => {
+    const seatsCollection = getNewCollection('seats');
+    return res.json({
+        status:200,
+        data:await seatsCollection.find().toArray()
+    })
+})
+// 修改座位的状态
+adminRouter.post('/admin/change_seat_status',async (req,res) => {
+    const {seat_id,status} = req.body;
+    const seatsCollection = getNewCollection('seats');
+    await seatsCollection.updateOne({
+        seat_id:seat_id
+    },{
+        $set:{
+            seat_status:status
+        }
+    })
+    return res.json({
+        status:200,
+        message:"修改成功"
+    })
+})
+// 为用户的投诉报告创建一个回复
+adminRouter.post('/admin/create_reply',ReportService.CreateReplyForReport)
+// 获取所有的投诉
+adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
+
 module.exports = adminRouter;

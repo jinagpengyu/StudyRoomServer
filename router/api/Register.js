@@ -42,7 +42,6 @@ const RegisterService = async (userData) => {
 const checkUserExitInMongoDB = async (email) => {
 
     const res = await collection.find({email:email}).toArray();
-    console.log(res)
     return res.length > 0;
 
 }

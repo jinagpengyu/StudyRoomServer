@@ -35,7 +35,6 @@ const loginService = async (email,password) => {
 
 const checkUserExit = async (email) => {
     const res = await collectionUsers.find({email:email}).toArray();
-    console.log(res);
     return res.length > 0;
 }
 

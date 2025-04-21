@@ -1,26 +1,23 @@
 const express = require('express');
 const { ObjectId } = require('mongodb')
-
 const indexRouter = express.Router();
-
 const LoginApi = require('./api/Login');
-
+const { OrderSeatService } = require('./api/SeatService');
+const ReportService = require('../Services/ReportService')
+const ConventionService= require('../Services/ConventionService')
+const SeatService = require('../Services/SeatService')
+const { GetUserId } = require('../Tool/UserTool')
 const { checkSessionStatus , clearSession, checkSessionNotExit , checkUserSessionStatus} = require("../sessionStore/checkBySessionID");
-
 const { getSessionId } = require('../sessionStore/index');
-
 const { getUserInfo, changeUsername, deleteSpecificUser } = require('./api/UserInfo');
-
 const { checkUserRole, checkPermissionWithUserID } = require('../checkPermission/index');
-
 const { getSeatInfo,createSeats} = require('./api/SeatInfo');
-
 const { getSpecificUserOrderHistory } = require('./api/OrderHistory');
-
 const collectionUserRole = require('../config/mongoDB').getNewCollection("user_role");
-
 const { getNewCollection } = require('../config/mongoDB');
-
+const { UpdateSeatStatus, PrintSeatStatus } = require('./interceptor/SeatInterceptor')
+c=
+// 登录
 indexRouter.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     const result = await LoginApi.loginService(email, password);
@@ -31,7 +28,6 @@ indexRouter.post('/api/login', async (req, res) => {
         });
     }
     const userInfo = await getUserInfo(email);
-    console.log(userInfo);
     res.cookie('sessionID', await getSessionId(email), { httpOnly: true });
     res.cookie('username', userInfo.username, { httpOnly: true });
     res.cookie('email', email, { httpOnly: true });
@@ -62,7 +58,6 @@ indexRouter.post('/users/login/out', async (req,res) => {
     res.clearCookie('email', {httpOnly:true});
     res.json({status:200, message:"Login out successfully"});
 })
-
 indexRouter.post('/users/login/status', async (req,res) => {
     const email = req.cookies.email;
     console.log(`email : ${email}`);
@@ -70,7 +65,6 @@ indexRouter.post('/users/login/status', async (req,res) => {
         return res.json({status:401, message: "User have not login in System"});
     return res.json({status:200, message: "User have login system"});
 })
-
 indexRouter.post('/api/checkLoginSession',async (req,res) => {
     const sessionID = req.cookies.sessionID;
     if(sessionID === null)
@@ -79,9 +73,7 @@ indexRouter.post('/api/checkLoginSession',async (req,res) => {
         return res.json({message:"session out of date",status:301});
     res.json({message:"session pass",status:200});
 })
-
 const RegisterApi = require('./api/Register')
-
 indexRouter.post('/api/register',async (req,res) => {
     // const {email,password,username,registerDate} = req.body
     // const result = await RegisterApi.RegisterService(email,password,username,registerDate)
@@ -90,12 +82,10 @@ indexRouter.post('/api/register',async (req,res) => {
     const result = await RegisterApi.RegisterService(userData);
     res.json(result)
 })
-
 indexRouter.post('/test/checkUserRole', (req, res) => {
     const {user_id} = req.body
     checkUserRole(user_id)
 })
-
 indexRouter.post('/test/checkPermissionWithUserID', async (req, res) => {
     const {user_id} = req.body
     let funRes = null
@@ -104,25 +94,25 @@ indexRouter.post('/test/checkPermissionWithUserID', async (req, res) => {
     })
     console.log(funRes)
 })
-
+// 获取用户的信息
 indexRouter.post('/api/userInfo', async (req,res) => {
     const email = req.cookies.email;
-    const username = req.cookies.username;
-    return res.json({email: email, username: username, status: 200});
+    const usersCollection = await getNewCollection('users');
+    const result = await usersCollection.findOne({email : email});
+    return res.json({
+        status:200,
+        data:result
+    })
 })
-// TODO:写一个新的请求用户信息函数
 indexRouter.post('/api/getSeatInfo' , getSeatInfo)
-
 indexRouter.post('/api/orderSeat' , createSeats)
-// test
 const { checkSessionExitWhitEmail } = require("../sessionStore/index")
-
+const {getUserID} = require("../sessionStore");
 indexRouter.post('/test/checkSession', async (req,res) => {
     const email =  req.body
     await checkSessionExitWhitEmail(email)
     res.json("111")
 })
-
 indexRouter.post('/api/changeUsername', async (req,res) => {
     const { username } = req.body;
     const email = req.cookies.email;
@@ -132,13 +122,11 @@ indexRouter.post('/api/changeUsername', async (req,res) => {
     }
     res.json(response);
 })
-
 indexRouter.post('/api/users/delete', async (req,res) => {
     const email = req.cookies.email;
     const response = await deleteSpecificUser(email);
     res.json(response);
 })
-
 indexRouter.post('/api/users/orderHistory', async (req,res) =>{
     const email = req.cookies.email;
 
@@ -180,87 +168,67 @@ indexRouter.post('/api/getAllPublishNotice', async (req,res) => {
         }).toArray()
     })
 })
-//预约座位模块：获取当前日期的座位预定情况
-indexRouter.post('/api/seat/getAllSeatInfo', async(req,res) => {
-    const date = req.body.date;
-    const date_yymmdd = date.toISOString().split('T')[0];
-    console.log(date_yymmdd);
-    return res.json({
-        status:200
-    })
-})
 //预约座位模块：预约一个座位
-indexRouter.post('/api/seat/OrderOne',async (req,res) => {
-    const {seat_id,date} = req.body;
-    const checkDate = new Date(date);
-    const email = req.cookies.email;
-    const seatsCollection = getNewCollection('seats');
-    //每个用户每天只能预约一个座位
-    const result1 = await seatsCollection.find(
-        {
-            email:email,
-            date:checkDate.toISOString().split('T')[0]
-        }
-        ).toArray();
-    const result2 = await seatsCollection.find(
-        {
-            date:checkDate.toISOString().split('T')[0]
-        }).toArray();
-    console.log(result1)
-    if(result1.length > 0) {
-        return res.json({
-            status:301,
-            meg:"用户已经当天已经预约了"
-        })
-    }
-    if(result2.length > 0){
-        return res.json({
-            status:302,
-            meg:"该座位已被预约"
-        })
-    }
-    seatsCollection.insertOne({
-        seat_id:seat_id,
-        email:email,
-        date:checkDate.toISOString().split('T')[0]
-    }).then(() => {
-        console.log(`${email} 用户预约座位${seat_id}成功`);
-    })
-    return res.json({
-        status:200,
-        meg:"预约座位成功"
-    })
-})
+indexRouter.post('/api/seat/OrderOne',SeatService.OrderOneSeat)
 //预约座位模块：返回所选日期的座位预约情况
 indexRouter.post('/api/seat/Status',async (req,res) => {
+    const seat_count = []
     const {date} = req.body;
-    const checkDate = new Date(date);
+    console.log(date)
     const seatCollection = getNewCollection('seats');
-    const result = await seatCollection.find({
-        date:checkDate.toISOString().split('T')[0]
-    }).toArray();
-    return res.json(result);
+    const ordersCollection = getNewCollection('orders')
+    const seats = await seatCollection.find().toArray()
+    for(let i = 0;i < seats.length;i++) {
+        const searchJson = {
+            seat_id : seats[i].seat_id,
+            order_date : date,
+        }
+        if(seats[i].seat_status === "暂停预约"){
+            const pushJson = {
+                seat_id:seats[i].seat_id,
+                status:"暂停预约"
+            }
+            seat_count.push(pushJson)
+        }else if(seats[i].seat_status === "可预约"){
+            const result = await ordersCollection.find(searchJson).toArray()
+            if(result.length === 0){
+                const pushJson = {
+                    seat_id:seats[i].seat_id,
+                    status:"可预约"
+                }
+                seat_count.push(pushJson)
+            }else{
+                let pushJson = {
+                    seat_id:seats[i].seat_id,
+                    status:"可预约"
+                }
+                for (const resultElement of result) {
+                    if(resultElement.status === "正常"){
+                        pushJson.status = "已预约"
+                    }
+                }
+                seat_count.push(pushJson)
+
+            }
+        }
+
+    }
+    res.json({
+        status:200,
+        data:seat_count
+    })
 })
 //预约座位模块：换座
 indexRouter.post('/api/seat/ChangeSeat',async (req,res) => {
-    const { targetSeat,selectDate} = req.body;
-    const email = req.cookies.email;
-    const collection1 = getNewCollection('seats');
-    const collection2 = getNewCollection('seat_operation');
-
-    const result1 = await collection1.find({email:email,date:selectDate}).toArray();
-    /*删除原有的记录*/
-    collection1.deleteOne({email:email,date:selectDate});
-    /*添加新的预约记录*/
-    collection1.insertOne({seat_id:targetSeat,email:email,date:selectDate});
-    /*添加新的座位操作记录*/
-    collection2.insertOne({
-        email:email,
-        date:selectDate,
-        originSeat:result1[0].seat_id,
-        targetSeat:targetSeat,
-        operation:"换座"
-    });
+    const {order_id,target_seat_id} = req.body;
+    const ordersCollection = getNewCollection('orders');
+    await ordersCollection.updateOne({
+        order_id:order_id
+    },{
+        $set:{
+            seat_id:target_seat_id
+        }
+    })
     return res.json({
         status:200,
         meg:"换座成功"
@@ -309,32 +277,59 @@ indexRouter.post('/api/user/change/username',async (req,res) => {
         data:result[0]
     })
 })
-// New 新建一个用户
-indexRouter.post('/test/add/user',async (req,res) => {
-    const userData = req.body;
-    const usersCollection = getNewCollection('newUsers');
-    await usersCollection.insertOne({
-        username: userData.username,
-        password:userData.password
+// 返回用户所有的预约记录
+indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,PrintSeatStatus], SeatService.GetAllOrderHistory)
+// 取消预约
+indexRouter.post('/user/cancelOrder',async (req,res) => {
+    const {order_id} = req.body;
+    const ordersCollection = getNewCollection('orders');
+    await ordersCollection.updateOne({
+        _id : new ObjectId(order_id),
+    },{
+        $set:{
+            status:"取消"
+        }
     })
-    const user = await usersCollection.find({
-        username: userData.username
-    }).toArray();
-    const testCollection = getNewCollection('test');
-    await testCollection.insertOne({
-        user_id : user[0]._id,
-    })
-})
-indexRouter.post('/test2', async (req,res) => {
-    const testCollection = getNewCollection('test');
-    const result = await testCollection.find().toArray();
-    const usersCollection = getNewCollection('newUsers');
-    const result2 = await usersCollection.find({
-        _id:result[0].user_id
-    }).toArray();
-    return res.json({
+    res.json({
         status:200,
-        data:result2[0]
+        message:"取消预约成功"
     })
 })
+// 获取某个预约座位的用户信息和座位信息
+indexRouter.post('/api/getOrderInfo', async (req, res) => {
+    const { seat_id, order_date } = req.body;
+    const ordersCollection = getNewCollection('orders');
+    const usersCollection = getNewCollection('users');
+
+    const order = await ordersCollection.findOne({
+        seat_id,
+        order_date,
+        status: "正常"
+    });
+
+    if (!order) {
+        return res.json({
+            status: 300,
+            message: "该座位没有预约记录"
+        });
+    }
+
+    const user = await usersCollection.findOne({
+        _id: new ObjectId(order.user_id)
+    });
+
+    return res.json({
+        status: 200,
+        data: {
+            user_info: user,
+            order_info: order
+        }
+    });
+});
+// 添加一个投诉
+indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
+// 获取所有的公约
+indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
+// 获取所有的个人投诉
+indexRouter.post('/user/getAllReport',ReportService.GetAllReport_User)
 module.exports = indexRouter

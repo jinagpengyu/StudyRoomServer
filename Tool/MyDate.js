@@ -21,8 +21,21 @@ function NowYYMMDDString () {
     const chinaTime = new Date(utc + (8 * 60 * 60 * 1000));
     return chinaTime.toISOString().split('T')[0];
 }
+function CompareDate(date1YYMMDD, date2YYMMDD) {
+    const date1 = new Date(date1YYMMDD);
+    const date2 = new Date(date2YYMMDD);
+    if(date1.getTime() > date2.getTime()) {
+        return 1;
+    } else if(date1 < date2) {
+        return -1;
+    } else {
+        return 0;
+    }
+
+}
 
 module.exports = {
     TodayAndTomorrow,
-    NowYYMMDDString
+    NowYYMMDDString,
+    CompareDate
 }

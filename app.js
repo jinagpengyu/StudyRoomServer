@@ -14,11 +14,11 @@ const { mysql_pool } = require('./config/database');
 
 const app = express();
 const port = 30002;
+// 路由设置
 const indexRouter = require('./router/index');
 const OrderRouter = require('./router/OrderRouter');
 const adminRouter = require('./router/AdminRouter');
-
-
+// 配置数据库
 const db= require('./config/database');
 const {query} = require("express");
 
@@ -35,10 +35,16 @@ app.use(session({
 app.use(indexRouter);
 app.use(OrderRouter);
 app.use(adminRouter);
+
 app.listen(port, '0.0.0.0',()=>{
     console.log('server is listen' + port );
 
 })
+
 indexRouter.get('/api/test',(req,res) => {
     console.log('连接成功')
 })
+
+module.exports = {
+    app
+}

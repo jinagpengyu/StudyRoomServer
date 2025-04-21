@@ -9,8 +9,16 @@ client.connect().then(() => {
 
 const db = client.db('local')
 const collection = db.collection(db_name)
-
+const conventionCollection = db.collection('convention')
+const reportCollection = db.collection('report')
+const orderCollection = db.collection('orders')
 const getNewCollection = (collection) => {
     return db.collection(collection)
 }
-module.exports = { collection ,getNewCollection}
+module.exports = {
+    collection ,
+    getNewCollection,
+    conventionCollection,
+    reportCollection,
+    orderCollection
+}

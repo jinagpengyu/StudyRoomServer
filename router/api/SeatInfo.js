@@ -44,7 +44,6 @@ const checkSeatInfo = async (req,res) => {
             res.status(400).json(`该座位在${formatDate(checkStart)}至${formatDate(checkEnd)}时间段内被预约，请选择别的座位`)
             return
         }
-        console.log(node)
     }
     res.status(302).json(`该座位在${startDate}至${endDate}时间段可以被预约，预约成功`)
 }

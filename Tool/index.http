@@ -49,10 +49,8 @@ Cookie: email=931930201@qq.com;
 
 {
   "formData": {
-    "title": "测试",
-    "data": "这是一个测试",
-    "status": "已发布",
-    "publishDate": "2025-04-02"
+    "title": "测试123",
+    "data": "这是一个测试123"
   }
 }
 
@@ -69,7 +67,7 @@ Cookie: email=931930201@qq.com;
 }
 
 ###返回status为true的所有公告
-POST http://localhost:30002/admin/all_convention
+POST http://localhost:30002/admin/get_all_notice
 Content-Type: application/json
 
 
@@ -118,3 +116,75 @@ Content-Type: application/json
   "password": "123456",
   "phone": "12345678901"
 }
+
+###创建所有的座位
+POST http://localhost:30002/admin/create_seats
+Content-Type: application/json
+
+
+###创建一个新字段
+POST http://localhost:30002/test/add_new_field
+Content-Type: application/json
+
+
+###创建一条新座位
+POST http://localhost:30002/api/seat/OrderOne
+Content-Type: application/json
+Cookie: email=1770693880@qq.com;
+
+{
+  "seat_id": 8,
+  "order_date" : "2025-04-15"
+}
+
+###获得座位的状态
+POST http://localhost:30002/api/seat/Status
+Content-Type: application/json
+
+{
+  "date" : "2025-04-15"
+}
+
+###获取用户的所有预约记录
+POST http://localhost:30002/user/getAllOrders
+Content-Type: application/json
+Cookie: email=1770693880@qq.com;
+
+###获取所有座位信息
+POST http://localhost:30002/admin/getAllSeats
+
+###修改公告的状态
+POST http://localhost:30002/admin/change_notice_status
+Content-Type: application/json
+
+{
+  "id": "67eb5e92d34ee7a0dd6ddc43",
+  "status" : "隐藏"
+}
+
+###获取用户的个人信息
+POST http://localhost:30002/api/userInfo
+Content-Type: application/json
+Cookie: email=1770693880@qq.com;
+
+###获取某个日期的已预约座位的详细信息
+POST http://localhost:30002/api/getOrderInfo
+Content-Type: application/json
+
+{
+  "seat_id": 5,
+  "order_date": "2025-04-18"
+}
+
+###创建一条公约
+POST http://localhost:30002/admin/new_convention
+Content-Type: application/json
+
+{
+  "context": "dadads",
+  "date" : "2025-04-18"
+}
+
+###获取所有投诉
+POST http://localhost:30002/admin/getAllReport
+Content-Type: application/json
