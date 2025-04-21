@@ -280,21 +280,7 @@ indexRouter.post('/api/user/change/username',async (req,res) => {
 // 返回用户所有的预约记录
 indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,PrintSeatStatus], SeatService.GetAllOrderHistory)
 // 取消预约
-indexRouter.post('/user/cancelOrder',async (req,res) => {
-    const {order_id} = req.body;
-    const ordersCollection = getNewCollection('orders');
-    await ordersCollection.updateOne({
-        _id : new ObjectId(order_id),
-    },{
-        $set:{
-            status:"取消"
-        }
-    })
-    res.json({
-        status:200,
-        message:"取消预约成功"
-    })
-})
+indexRouter.post('/user/cancelOrder',SeatService.CancelOrder)
 // 获取某个预约座位的用户信息和座位信息
 indexRouter.post('/api/getOrderInfo', async (req, res) => {
     const { seat_id, order_date } = req.body;

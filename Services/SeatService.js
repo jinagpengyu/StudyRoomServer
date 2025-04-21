@@ -1,8 +1,8 @@
 const {GetUserId} = require("../Tool/UserTool");
-const {OrderSeatService} = require("../router/api/SeatService");
 const {orderCollection} = require("../config/mongoDB")
-const MyDate = require('../Tool/MyDate')
 const UserTool = require("../Tool/UserTool")
+const {ObjectId} = require("mongodb")
+
 module.exports = {
     async OrderOneSeat(req,res){
         const {seat_id,order_date} = req.body;
@@ -65,7 +65,7 @@ module.exports = {
                             create_time:await UserTool.GetFormatedDate(item.create_time),
                             status:item.status,
                             operation :[
-                                '详细'
+                                '取消预约'
                             ]
                         }
                     }else{
@@ -91,6 +91,36 @@ module.exports = {
             return res.json({
                 status:400,
                 message:"获取失败"
+            })
+        }
+    },
+    async CancelOrder (req,res) {
+        const order_id = req.body.order_id
+        console.log(order_id)
+        try {
+            let result
+            result = await orderCollection.find({
+                _id : new ObjectId(order_id),
+                status: "正常"
+            }).toArray()
+            if(result.length > 0) {
+                await orderCollection.updateOne({
+                    _id:new ObjectId(order_id)
+                },{$set:{
+                        status:"取消"
+                    }})
+                return res.json({
+                    status:200,
+                    message:"取消成功"
+                })
+            }else{
+                throw new Error("该订单不存在或已被取消")
+            }
+        }catch (e){
+            console.error(e)
+            return res.json({
+                status:400,
+                message:"取消失败"
             })
         }
     }
