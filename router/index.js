@@ -6,6 +6,7 @@ const { OrderSeatService } = require('./api/SeatService');
 const ReportService = require('../Services/ReportService')
 const ConventionService= require('../Services/ConventionService')
 const SeatService = require('../Services/SeatService')
+const UserInfoService = require('../Services/UserInfoService')
 const { GetUserId } = require('../Tool/UserTool')
 const { checkSessionStatus , clearSession, checkSessionNotExit , checkUserSessionStatus} = require("../sessionStore/checkBySessionID");
 const { getSessionId } = require('../sessionStore/index');
@@ -95,15 +96,7 @@ indexRouter.post('/test/checkPermissionWithUserID', async (req, res) => {
     console.log(funRes)
 })
 // 获取用户的信息
-indexRouter.post('/api/userInfo', async (req,res) => {
-    const email = req.cookies.email;
-    const usersCollection = await getNewCollection('users');
-    const result = await usersCollection.findOne({email : email});
-    return res.json({
-        status:200,
-        data:result
-    })
-})
+indexRouter.post('/api/userInfo',UserInfoService.GetUserInfo )
 indexRouter.post('/api/getSeatInfo' , getSeatInfo)
 indexRouter.post('/api/orderSeat' , createSeats)
 const { checkSessionExitWhitEmail } = require("../sessionStore/index")
