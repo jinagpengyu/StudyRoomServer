@@ -12,6 +12,7 @@ module.exports = {
             title:title,
             type:type,
             content:content,
+            status:"待处理",
             report_date:new Date().getTime(),
         }
         await reportCollection.insertOne(insertJson);
