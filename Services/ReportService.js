@@ -5,10 +5,14 @@ const {GetUserId} = require("../Tool/UserTool");
 const assert = require("node:assert");
 module.exports = {
     async CreateNewReport(req,res){
+        const {title,type,content} = req.body
+        const email = req.cookies.email;
         const insertJson = {
-            user_id : new ObjectId(req.body.user_id),
-            report_content : req.body.content,
-            report_time : new Date().getTime()
+            user_id:new ObjectId(await GetUserId(email)),
+            title:title,
+            type:type,
+            content:content,
+            report_date:new Date().getTime(),
         }
         await reportCollection.insertOne(insertJson);
         return res.json({
