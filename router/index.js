@@ -7,6 +7,7 @@ const ReportService = require('../Services/ReportService')
 const ConventionService= require('../Services/ConventionService')
 const SeatService = require('../Services/SeatService')
 const UserInfoService = require('../Services/UserInfoService')
+const LoginService = require('../Services/LoginService')
 const { GetUserId } = require('../Tool/UserTool')
 const { checkSessionStatus , clearSession, checkSessionNotExit , checkUserSessionStatus} = require("../sessionStore/checkBySessionID");
 const { getSessionId } = require('../sessionStore/index');
@@ -19,35 +20,7 @@ const { getNewCollection } = require('../config/mongoDB');
 const { UpdateSeatStatus, PrintSeatStatus } = require('./interceptor/SeatInterceptor')
 c=
 // 登录
-indexRouter.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
-    const result = await LoginApi.loginService(email, password);
-    if (!result) {
-        return res.json({
-            status: 301,
-            message: "login fail"
-        });
-    }
-    const userInfo = await getUserInfo(email);
-    res.cookie('sessionID', await getSessionId(email), { httpOnly: true });
-    res.cookie('username', userInfo.username, { httpOnly: true });
-    res.cookie('email', email, { httpOnly: true });
-    const collection = getNewCollection('user_role');
-    const roleResult = await collection.find({ email: email }).toArray();
-    if (roleResult.length === 0) {
-        return res.json({
-            status: 301,
-            message: "User role not found"
-        });
-    }
-    const role = roleResult[0].role;
-    const status = role === 'admin' ? 201 : 200;
-    const message = role === 'admin' ? "Hello admin!" : "Hello user!";
-    return res.json({
-        status: status,
-        message: message
-    });
-});
+indexRouter.post('/api/login', LoginService.LoginService);
 // 退出登录
 indexRouter.post('/users/login/out', async (req,res) => {
     const sessionID = req.cookies.sessionID;
@@ -248,28 +221,9 @@ indexRouter.post('/api/user/operations',async (req,res) => {
     })
 })
 // 修改用户名
-indexRouter.post('/api/user/change/username',async (req,res) => {
-    const email = req.cookies.email;
-    const { username } = req.body;
-    const collection_user = getNewCollection('users');
-    collection_user.updateOne({
-        email:email
-    },{
-        $set:{
-            username:username
-        }
-    }).then(() => {
-        console.log(`${email} 修改用户名成功`);
-    })
-    const result = await collection_user.find({
-        email:email
-    }).toArray();
-    res.cookie('username', result[0].username, { httpOnly: true });
-    return res.json({
-        status:200,
-        data:result[0]
-    })
-})
+indexRouter.post('/api/user/change/username',UserInfoService.UpdateUsername)
+// 修改邮箱
+indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)
 // 返回用户所有的预约记录
 indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,PrintSeatStatus], SeatService.GetAllOrderHistory)
 // 取消预约
