@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-// const User = require('../models/User'); // 假设存在用户模型
 const {usersCollection} = require('../config/mongoDB')
 
 module.exports = {
@@ -43,5 +42,59 @@ module.exports = {
             console.error('登录失败:', error);
             res.status(500).json({message: '服务器内部错误'});
         }
+    },
+    async RegisterUser(req, res) {
+        try {
+            // 1. 解析请求参数
+            const { email,phone, password, username } = req.body;
+
+            // 2. 参数验证（可扩展更多验证逻辑）
+            if (!email || !password || !username || !phone) {
+                return res.status(400).json({ message: '邮箱、密码和用户名为必填项' });
+            }
+
+            // 3. 检查邮箱是否已存在
+            const existingUser = await usersCollection.findOne({
+                email: email
+            });
+            if (existingUser) {
+                return res.status(409).json({ message: '该邮箱已被注册' });
+            }
+
+            // 4. 密码加密（使用bcrypt替代明文存储）
+            const hashedPassword = await bcrypt.hash(password, 10);
+            // 5. 创建用户文档
+            const newUser = {
+                email:email,
+                password: hashedPassword,
+                name: username,
+                role: 'user', // 默认角色
+                create_time: new Date()
+            };
+
+            // 6. 保存到数据库
+            const result = await usersCollection.insertOne(newUser);
+
+            console.log(result);
+            // 7. 返回成功响应（不包含密码）
+            res.status(200).json({
+                status: 200,
+                message: '注册成功',
+                user: {
+                    id: result._id,
+                    username: result.name,
+                    email: result.email
+                }
+            });
+
+        } catch (error) {
+            console.error('注册失败:', error);
+            if (error.code === 11000) { // MongoDB唯一索引冲突
+                return res.status(409).json({ message: '该邮箱已被注册' });
+            }
+            res.status(500).json({ message: '服务器内部错误' });
+        }
     }
+
+
 };

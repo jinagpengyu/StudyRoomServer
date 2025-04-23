@@ -1,3 +1,10 @@
+const dayjs = require('dayjs');
+const utc = require('dayjs-plugin-utc');
+// const timezone = require('dayjs-plugin-timezone');
+
+// dayjs.extend(utc);
+// dayjs.extend(timezone);
+
 function TodayAndTomorrow() {
     const now = new Date();
     // 将当前时间转换为UTC+8时区
@@ -33,9 +40,18 @@ function CompareDate(date1YYMMDD, date2YYMMDD) {
     }
 
 }
+function GetChinaDate() {
+    const date = new Date();
+    const offset = 8; // 东八区固定偏移
+    const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+    const chinaTime = new Date(utcTime + (offset * 3600000));
+    return chinaTime;
+}
+
 
 module.exports = {
     TodayAndTomorrow,
     NowYYMMDDString,
-    CompareDate
+    CompareDate,
+    GetChinaDate
 }

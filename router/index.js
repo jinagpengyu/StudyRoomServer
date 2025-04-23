@@ -48,14 +48,7 @@ indexRouter.post('/api/checkLoginSession',async (req,res) => {
     res.json({message:"session pass",status:200});
 })
 const RegisterApi = require('./api/Register')
-indexRouter.post('/api/register',async (req,res) => {
-    // const {email,password,username,registerDate} = req.body
-    // const result = await RegisterApi.RegisterService(email,password,username,registerDate)
-    // res.json(result)
-    const userData = req.body;
-    const result = await RegisterApi.RegisterService(userData);
-    res.json(result)
-})
+indexRouter.post('/api/register',LoginService.RegisterUser)
 indexRouter.post('/test/checkUserRole', (req, res) => {
     const {user_id} = req.body
     checkUserRole(user_id)
