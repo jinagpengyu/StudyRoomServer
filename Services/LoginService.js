@@ -33,7 +33,7 @@ module.exports = {
             res.status(200).json({
                 token,
                 user: {
-                    id: user._id, username: user.name, email: user.email
+                    id: user._id, username: user.name, email: user.email,role:user.role
                 },
                 nav: (user.role === 'user') ? '/user/index' : '/admin/index'
             });
