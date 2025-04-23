@@ -94,7 +94,42 @@ module.exports = {
             }
             res.status(500).json({ message: '服务器内部错误' });
         }
+    },
+    async Logout(req, res) {
+        try {
+            // 验证 Authorization 头
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) {
+                return res.status(401).json({
+                    status: 401,
+                    message: '缺少认证令牌'
+                });
+            }
+
+            // 清除认证信息（同时处理cookie和可能的服务端会话）
+            res.clearCookie('email', {
+                httpOnly: true,
+                path: '/' // 使cookie在整个站点有效
+            });
+
+            // 返回与前端匹配的响应格式
+            res.status(200).json({
+                status: 200,
+                message: '登出成功',
+                redirect: '/',
+                timestamp: new Date().getTime() // 添加时间戳防止缓存
+            });
+
+        } catch (error) {
+            console.error('登出失败:', error);
+            res.status(500).json({
+                status: 500,
+                message: '服务器内部错误',
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
     }
+
 
 
 };

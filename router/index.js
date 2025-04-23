@@ -22,16 +22,7 @@ c=
 // 登录
 indexRouter.post('/api/login', LoginService.LoginService);
 // 退出登录
-indexRouter.post('/users/login/out', async (req,res) => {
-    const sessionID = req.cookies.sessionID;
-    console.log(sessionID);
-    if(!await clearSession(sessionID))
-        res.json({status:401, message:"login out unsuccessfully"})
-    res.clearCookie('sessionID', {httpOnly:true});
-    res.clearCookie('username', {httpOnly:true});
-    res.clearCookie('email', {httpOnly:true});
-    res.json({status:200, message:"Login out successfully"});
-})
+indexRouter.post('/users/login/out', LoginService.Logout)
 indexRouter.post('/users/login/status', async (req,res) => {
     const email = req.cookies.email;
     console.log(`email : ${email}`);
