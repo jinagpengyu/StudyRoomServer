@@ -200,7 +200,11 @@ indexRouter.post('/api/user/operations',async (req,res) => {
         data:result
     })
 })
-// 修改用户名
+/**
+ * @description 修改用户名
+ * @route POST /api/user/change/username
+ * @permission user
+ */
 indexRouter.post('/api/user/change/username',UserInfoService.UpdateUsername)
 // 修改邮箱
 indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)

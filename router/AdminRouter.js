@@ -8,6 +8,7 @@ const {
     GetAllConventions
 } = require('../Services/ConventionService');
 const ReportService = require('../Services/ReportService');
+const SeatService = require('../Services/SeatService');
 // 添加一条新公告
 adminRouter.post('/admin/new_notice',async (req,res) => {
     const {title,data} = req.body;
@@ -191,5 +192,7 @@ adminRouter.post('/admin/change_seat_status',async (req,res) => {
 adminRouter.post('/admin/create_reply',ReportService.CreateReplyForReport)
 // 获取所有的投诉
 adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
+
+adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
 
 module.exports = adminRouter;

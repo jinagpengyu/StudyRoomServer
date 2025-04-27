@@ -1,5 +1,5 @@
 const {GetUserId} = require("../Tool/UserTool");
-const {orderCollection} = require("../config/mongoDB")
+const {orderCollection,usersCollection} = require("../config/mongoDB")
 const UserTool = require("../Tool/UserTool")
 const {ObjectId} = require("mongodb")
 
@@ -123,5 +123,53 @@ module.exports = {
                 message:"取消失败"
             })
         }
+    },
+    /**
+     * 获取预约指定座位用户的详细信息
+     * @param {Object} req - Express请求对象，需包含body参数：
+     *  @param {string} req.body.seat_id - 要查询的座位ID
+     *  @param {string} req.body.order_date - 要查询的预约日期（格式应为YYYY-MM-DD）
+     * @param {Object} res - Express响应对象
+     * @returns {Promise<void>} 返回JSON响应：
+     *  - 成功时（200）返回用户数据 { name: string, email: string }
+     *  - 失败时（400）返回错误消息，包含失败原因：
+     *    - 座位无预约记录
+     *    - 用户不存在
+     * @throws 当数据库查询失败时抛出异常
+     */
+
+    async GetOrderDetail(req,res){
+        const {seat_id,order_date} = req.body;
+        try {
+            const order = await orderCollection.findOne({
+                seat_id:seat_id,
+                order_date:order_date,
+                status:"正常"
+            })
+            if(!order){
+                throw new Error("该座位没有预约记录")
+            }
+            const user = await usersCollection.findOne({
+                _id:new ObjectId(order.user_id)
+            })
+            if(!user){
+                throw new Error("该用户不存在")
+            }
+            return res.json({
+                status:200,
+                data:{
+                    name:user.name,
+                    email:user.email,
+                }
+            })
+
+        }catch (e) {
+            console.error(e)
+            return res.json({
+                status:400,
+                message:"获取失败," + e.message
+            })
+        }
     }
+
 }
