@@ -13,6 +13,7 @@ const conventionCollection = db.collection('convention')
 const reportCollection = db.collection('report')
 const orderCollection = db.collection('orders')
 const usersCollection = db.collection('users')
+const seatCollection = db.collection('seats')
 const getNewCollection = (collection) => {
     return db.collection(collection)
 }
@@ -22,5 +23,6 @@ module.exports = {
     conventionCollection,
     reportCollection,
     orderCollection,
-    usersCollection
+    usersCollection,
+    seatCollection
 }

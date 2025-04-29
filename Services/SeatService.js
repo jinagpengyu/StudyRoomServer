@@ -1,5 +1,5 @@
 const {GetUserId} = require("../Tool/UserTool");
-const {orderCollection,usersCollection} = require("../config/mongoDB")
+const {orderCollection,usersCollection,seatCollection} = require("../config/mongoDB")
 const UserTool = require("../Tool/UserTool")
 const {ObjectId} = require("mongodb")
 
@@ -165,6 +165,25 @@ module.exports = {
 
         }catch (e) {
             console.error(e)
+            return res.json({
+                status:400,
+                message:"获取失败," + e.message
+            })
+        }
+    },
+
+    async GetAllSeatInfo(req,res){
+        try{
+            const result = await seatCollection.find({}).toArray()
+            if(result.length > 0){
+                return res.json({
+                    status:200,
+                    data:result
+                })
+            }else{
+                throw new Error("座位信息获取失败")
+            }
+        }catch (e) {
             return res.json({
                 status:400,
                 message:"获取失败," + e.message

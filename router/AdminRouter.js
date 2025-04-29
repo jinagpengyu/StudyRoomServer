@@ -165,13 +165,7 @@ adminRouter.post('/admin/create_seats',async (req,res) => {
     })
 })
 // 返回所有的座位信息
-adminRouter.post('/admin/getAllSeats', async (req,res) => {
-    const seatsCollection = getNewCollection('seats');
-    return res.json({
-        status:200,
-        data:await seatsCollection.find().toArray()
-    })
-})
+adminRouter.post('/admin/getAllSeats',SeatService.GetAllSeatInfo)
 // 修改座位的状态
 adminRouter.post('/admin/change_seat_status',async (req,res) => {
     const {seat_id,status} = req.body;

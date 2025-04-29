@@ -20,7 +20,7 @@ describe('POST /user/getAllOrders', () => {
     it('返回该用户的所有预约记录', async () => {
         const result = await request(app)
             .post('/user/getAllOrders')
-            .set('Cookie',['email=1770693880@qq.com'])
+            .set('Cookie',['email=1770693881@qq.com'])
             .send({
                 "user_id": "677296a5bbfeeca8e3695b4c"
             })

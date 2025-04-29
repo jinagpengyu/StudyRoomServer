@@ -53,5 +53,23 @@ module.exports = {
     TodayAndTomorrow,
     NowYYMMDDString,
     CompareDate,
-    GetChinaDate
+    GetChinaDate,
+    GetSelectDate: function () {
+        const now = new Date();
+        const utc = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+        const chinaTime = new Date(utc + (8 * 60 * 60 * 1000));
+
+        // 格式化为 YYYY-MM-DD
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        return {
+            todayDate: formatDate(chinaTime),
+            tomorrowDate: formatDate(new Date(chinaTime.getTime() + 24 * 60 * 60 * 1000))
+        };
+    }
 }
