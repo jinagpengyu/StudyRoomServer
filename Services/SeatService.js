@@ -201,6 +201,11 @@ module.exports = {
     async GetAllUserOrderHistory(req,res){
         const result = await orderCollection.aggregate([
             {
+              $match: {
+                status: { $ne: "已删除"}
+              }
+            },
+            {
                 $lookup:{
                     from:"users",
                     localField:"user_id",
@@ -210,6 +215,7 @@ module.exports = {
             },
             {
                 $project:{
+                    _id:1,
                     user_name:{ $arrayElemAt: ["$user_info.name", 0] },
                     seat_id:1,
                     order_date:1,
@@ -224,6 +230,17 @@ module.exports = {
             data:result
         })
     },
-
+    async DeleteOneOrder(req,res){
+        const {order_id} = req.body;
+        //TODO: 需要验证权限
+        await orderCollection.updateOne(
+            { _id: new ObjectId(order_id) },
+            { $set: { status: "已删除" } }
+        );
+        return res.json({
+            status:200,
+            message:"删除成功"
+        })
+    },
 
 }

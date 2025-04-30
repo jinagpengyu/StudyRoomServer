@@ -190,5 +190,6 @@ adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
 adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
 // 获取所有的预约信息
 adminRouter.post('/admin/getAllOrderHistory',SeatService.GetAllUserOrderHistory)
-
+// 删除一条预约信息
+adminRouter.post('/admin/deleteOneOrder',SeatService.DeleteOneOrder)
 module.exports = adminRouter;

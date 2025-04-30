@@ -196,3 +196,11 @@ Content-Type: application/json
 ###获取所有用户的预约信息
 POST http://localhost:30002/admin/getAllOrderHistory
 Content-Type: application/json
+
+###获取特定日期的预约座位的情况
+POST http://localhost:30002/api/seat/Status
+Content-Type: application/json
+
+{
+  "date": "2025-04-30"
+}
