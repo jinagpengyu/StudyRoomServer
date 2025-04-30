@@ -172,7 +172,6 @@ module.exports = {
             })
         }
     },
-
     async GetAllSeatInfo(req,res){
         try{
             const result = await seatCollection.find({}).toArray()
