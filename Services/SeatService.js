@@ -263,5 +263,28 @@ module.exports = {
             status:200,
             message:"换座成功"
         })
+    },
+    async ChangeSeatStatus(req,res){
+        const {seat_id,target_status} = req.body;
+        //TODO:鉴权
+        await seatCollection.updateOne(
+            {seat_id:seat_id},
+            { $set: { seat_status: target_status } }
+        )
+        return res.json({
+            status:200,
+            message:"修改成功"
+        })
+    },
+    async ChangeSeatStatusBatch(req,res){
+        const { seat_arr , target_status} = req.body;
+        await seatCollection.updateMany(
+            { seat_id: { $in: seat_arr } },
+            { $set: { seat_status: target_status } }
+        )
+        return res.json({
+            status:200,
+            message:"修改成功"
+        })
     }
 }
