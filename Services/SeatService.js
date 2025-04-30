@@ -1,6 +1,7 @@
 const {GetUserId} = require("../Tool/UserTool");
 const {orderCollection,usersCollection,seatCollection} = require("../config/mongoDB")
 const UserTool = require("../Tool/UserTool")
+const MyDateTool = require("../Tool/MyDate")
 const {ObjectId} = require("mongodb")
 
 module.exports = {
@@ -189,6 +190,13 @@ module.exports = {
                 message:"获取失败," + e.message
             })
         }
+    },
+    GetSelectDate(req,res){
+        return res.json({
+            status:200,
+            data:MyDateTool.GetSelectDate()
+        })
     }
+
 
 }

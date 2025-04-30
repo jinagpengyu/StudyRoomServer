@@ -188,3 +188,7 @@ Content-Type: application/json
 ###获取所有投诉
 POST http://localhost:30002/admin/getAllReport
 Content-Type: application/json
+
+###获取选择的日期
+POST http://localhost:30002/tool/getSelectDate
+Content-Type: application/json

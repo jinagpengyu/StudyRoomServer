@@ -249,4 +249,6 @@ indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
 indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
 // 获取所有的个人投诉
 indexRouter.post('/user/getAllReport',ReportService.GetAllReport_User)
+// 获取今明的日期
+indexRouter.post('/tool/getSelectDate',SeatService.GetSelectDate)
 module.exports = indexRouter
