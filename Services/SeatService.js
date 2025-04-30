@@ -242,5 +242,26 @@ module.exports = {
             message:"删除成功"
         })
     },
-
+    async ChangeSeat(req,res){
+        // TODO:  需要验证权限
+        const {order_id,target_seat_id} = req.body;
+        const order = await orderCollection.findOne({
+            _id: new ObjectId(order_id)
+        })
+        await orderCollection.updateOne(
+            { _id: new ObjectId(order_id) },
+            { $set: { status : '换座' } }
+        );
+        await orderCollection.insertOne({
+            user_id: order.user_id,
+            seat_id: target_seat_id,
+            order_date: order.order_date,
+            status: "正常",
+            create_time: MyDateTool.GetSelectDate().todayDate
+        })
+        return res.json({
+            status:200,
+            message:"换座成功"
+        })
+    }
 }

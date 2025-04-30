@@ -192,4 +192,6 @@ adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
 adminRouter.post('/admin/getAllOrderHistory',SeatService.GetAllUserOrderHistory)
 // 删除一条预约信息
 adminRouter.post('/admin/deleteOneOrder',SeatService.DeleteOneOrder)
+// 为用户换座
+adminRouter.post('/admin/changeSeat',SeatService.ChangeSeat)
 module.exports = adminRouter;
