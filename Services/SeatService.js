@@ -3,6 +3,8 @@ const {orderCollection,usersCollection,seatCollection} = require("../config/mong
 const UserTool = require("../Tool/UserTool")
 const MyDateTool = require("../Tool/MyDate")
 const {ObjectId} = require("mongodb")
+const {deleteSpecificUser} = require("../router/api/UserInfo");
+const assert = require("node:assert");
 
 module.exports = {
     async OrderOneSeat(req,res){
@@ -38,7 +40,7 @@ module.exports = {
             user_id:new Object(user_id),
             seat_id:seat_id,
             order_date:order_date,
-            create_time:new Date().getTime(),
+            create_time:MyDateTool.GetSelectDate().todayDate,
             status:"正常"
         })
         res.json({
@@ -195,7 +197,33 @@ module.exports = {
             status:200,
             data:MyDateTool.GetSelectDate()
         })
-    }
+    },
+    async GetAllUserOrderHistory(req,res){
+        const result = await orderCollection.aggregate([
+            {
+                $lookup:{
+                    from:"users",
+                    localField:"user_id",
+                    foreignField:"_id",
+                    as:"user_info"
+                }
+            },
+            {
+                $project:{
+                    user_name:{ $arrayElemAt: ["$user_info.name", 0] },
+                    seat_id:1,
+                    order_date:1,
+                    create_time:1,
+                    status:1
+                }
+            }
+        ]).toArray();
+        console.log(result)
+        return res.json({
+            status:200,
+            data:result
+        })
+    },
 
 
 }

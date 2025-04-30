@@ -188,5 +188,7 @@ adminRouter.post('/admin/create_reply',ReportService.CreateReplyForReport)
 adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
 
 adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
+// 获取所有的预约信息
+adminRouter.post('/admin/getAllOrderHistory',SeatService.GetAllUserOrderHistory)
 
 module.exports = adminRouter;

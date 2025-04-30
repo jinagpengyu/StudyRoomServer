@@ -192,3 +192,7 @@ Content-Type: application/json
 ###获取选择的日期
 POST http://localhost:30002/tool/getSelectDate
 Content-Type: application/json
+
+###获取所有用户的预约信息
+POST http://localhost:30002/admin/getAllOrderHistory
+Content-Type: application/json
