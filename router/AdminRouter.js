@@ -195,4 +195,6 @@ adminRouter.post('/admin/changeSeatStatus',SeatService.ChangeSeatStatus)
 adminRouter.post('/admin/changeSeatStatusBatch',SeatService.ChangeSeatStatusBatch)
 // 修改用户的状态，是否在黑名单中
 adminRouter.post('/admin/changeUserStatus',UserInfoService.UpdateUserStatus)
+// 删除用户 // TODO:需要鉴权
+adminRouter.post('/admin/deleteOneUser',UserInfoService.DeleteUser)
 module.exports = adminRouter;

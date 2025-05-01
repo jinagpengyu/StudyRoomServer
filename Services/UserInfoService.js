@@ -207,6 +207,32 @@ module.exports = {
                 message: e.message || "Internal Server Error"
             });
         }
+    },
+    async DeleteUser(req,res){
+        const { user_id } = req.body;
+        try{
+            // 软删除
+            const result = await usersCollection.updateOne(
+                {_id : new ObjectId(user_id)},
+                {$set:{status:'删除'}}
+            )
+            if(result.matchedCount === 0){
+                return res.status(404).json({
+                    status: 404,
+                    message: "User not found"
+                });
+            }
+            return res.json({
+                status:200,
+                message:"删除成功"
+            })
+        }catch (e) {
+            console.error(e.message);
+            return res.json({
+                status: 500,
+                message: e.message || "Internal Server Error"
+            })
+        }
     }
 
 };
