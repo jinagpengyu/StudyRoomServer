@@ -49,7 +49,7 @@ indexRouter.post('/test/checkPermissionWithUserID', async (req, res) => {
     console.log(funRes)
 })
 // 获取用户的信息
-indexRouter.post('/api/userInfo',UserInfoService.GetUserInfo )
+indexRouter.post('/api/userInfo',UserInfoService.GetOneUserInfo )
 indexRouter.post('/api/getSeatInfo' , getSeatInfo)
 indexRouter.post('/api/orderSeat' , createSeats)
 const { checkSessionExitWhitEmail } = require("../sessionStore/index")

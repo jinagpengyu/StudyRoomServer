@@ -9,6 +9,7 @@ const {
 } = require('../Services/ConventionService');
 const ReportService = require('../Services/ReportService');
 const SeatService = require('../Services/SeatService');
+const UserInfoService = require('../Services/UserInfoService');
 // 添加一条新公告
 adminRouter.post('/admin/new_notice',async (req,res) => {
     const {title,data} = req.body;
@@ -132,14 +133,8 @@ adminRouter.post('/admin/targetSeatInfo',async (req,res) => {
         email:result[0].email
     })
 })
-// 所有的用户信息
-adminRouter.post('/admin/get_user_info',async (req,res) => {
-    const collection = getNewCollection('users');
-    return res.json({
-        status:200,
-        data:await collection.find().toArray()
-    })
-})
+// 所有的用户信息 //TODO:需要鉴权
+adminRouter.post('/admin/get_user_info',UserInfoService.GetAllUserInfo)
 // 获取用户的所有操作记录
 adminRouter.post('/admin/get_user_operation_log',async (req,res) => {
     const {email} = req.body;
@@ -198,4 +193,5 @@ adminRouter.post('/admin/changeSeat',SeatService.ChangeSeat)
 adminRouter.post('/admin/changeSeatStatus',SeatService.ChangeSeatStatus)
 // 批量修改座位的状态
 adminRouter.post('/admin/changeSeatStatusBatch',SeatService.ChangeSeatStatusBatch)
+
 module.exports = adminRouter;

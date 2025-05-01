@@ -3,7 +3,7 @@ const { usersCollection } = require('../config/mongoDB'); // 假设 usersCollect
 const { ObjectId } = require("mongodb"); // 假设使用 MongoDB 的 ObjectID
 
 module.exports = {
-    async GetUserInfo(req, res) {
+    async GetOneUserInfo(req, res) {
         const user_id = await GetUserId(req.cookies.email);
         try {
             let result;
@@ -16,7 +16,7 @@ module.exports = {
                     data: result
                 });
             } else {
-                throw new Error('User not found'); // 具体化错误信息
+                new Error('User not found'); // 具体化错误信息
             }
         } catch (e) {
             console.error(e); // 打印错误日志，便于排查
@@ -153,6 +153,31 @@ module.exports = {
             }
         } catch (e) {
             console.error(e); // 打印错误日志
+            return res.status(500).json({
+                status: 500,
+                message: e.message || "Internal Server Error"
+            });
+        }
+    },
+    async GetAllUserInfo(req,res){
+        try {
+            const users = await usersCollection.aggregate([
+                {
+                    $project:{
+                        _id:1,
+                        name:1,
+                        phone:1,
+                        email:1,
+                        role:1,
+                        status:1
+                    }
+                }
+            ]).toArray();
+            return res.json({
+                status:200,
+                data:users
+            })
+        }catch (e){
             return res.status(500).json({
                 status: 500,
                 message: e.message || "Internal Server Error"

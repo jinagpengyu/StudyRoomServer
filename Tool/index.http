@@ -204,3 +204,7 @@ Content-Type: application/json
 {
   "date": "2025-04-30"
 }
+
+###管理员获取所有的用户信息
+POST http://localhost:30002/admin/get_user_info
+Content-Type: application/json
