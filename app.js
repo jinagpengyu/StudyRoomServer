@@ -41,9 +41,9 @@ app.listen(port, '0.0.0.0',()=>{
 
 })
 
-indexRouter.get('/api/test',(req,res) => {
-    console.log('连接成功')
-})
+// indexRouter.get('/api/test',(req,res) => {
+//     console.log('连接成功')
+// })
 
 module.exports = {
     app

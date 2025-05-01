@@ -3,37 +3,13 @@ const adminRouter = express.Router();
 const { getNewCollection } = require('../config/mongoDB')
 const {TodayAndTomorrow, NowYYMMDDString} = require("../Tool/MyDate");
 const {ObjectId} = require("mongodb");
-const {
-    CreateNewConvention,
-    GetAllConventions
-} = require('../Services/ConventionService');
+const ConventionService = require('../Services/ConventionService');
 const ReportService = require('../Services/ReportService');
 const SeatService = require('../Services/SeatService');
 const UserInfoService = require('../Services/UserInfoService');
 const NoticeService = require('../Services/NoticeService');
 //获取所有公告
 adminRouter.post('/admin/get_all_notice',NoticeService.GetAllNotice)
-// 修改公告的状态，已发布或者隐藏
-// adminRouter.post('/admin/change_notice_status',async (req,res) => {
-//     const {id,status} = req.body;
-//     const noticeCollection = getNewCollection('notice');
-//     await noticeCollection.updateOne({
-//         _id:new ObjectId(id)
-//     },{
-//         $set:{
-//             status:status
-//         }
-//     })
-//     res.json({
-//         status:200,
-//         message:"修改成功"
-//     })
-// })
-// // 添加一条新公约
-// adminRouter.post('/admin/new_convention',CreateNewConvention)
-
-// 获取所有的公约
-adminRouter.post('/admin/all_convention',GetAllConventions)
 //预约一个座位
 adminRouter.post('/admin/reserve_seat',async (req,res) => {
     // const {seat_id, email, formDate} = req.body;
@@ -153,7 +129,7 @@ adminRouter.post('/admin/change_seat_status',async (req,res) => {
 adminRouter.post('/admin/create_reply',ReportService.CreateReplyForReport)
 // 获取所有的投诉
 adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
-
+// 获取预约的详细信息
 adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
 // 获取所有的预约信息
 adminRouter.post('/admin/getAllOrderHistory',SeatService.GetAllUserOrderHistory)
@@ -173,4 +149,12 @@ adminRouter.post('/admin/deleteOneUser',UserInfoService.DeleteUser)
 adminRouter.post('/admin/addNewNotice',NoticeService.AddNewNotice)
 // 删除一条公告
 adminRouter.post('/admin/deleteOneNotice',NoticeService.DeleteOneNotice)
+// 获取所有的公约
+adminRouter.post('/admin/all_convention',ConventionService.GetAllConventions)
+// 修改公约
+adminRouter.post('/admin/changeConventionContext',ConventionService.UpdateOneConvention)
+// 删除公约
+adminRouter.post('/admin/deleteOneConvention',ConventionService.DeleteOneConvention)
+// 新建公约
+adminRouter.post('/admin/createNewConvention',ConventionService.CreateNewConvention)
 module.exports = adminRouter;
