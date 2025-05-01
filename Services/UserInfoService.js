@@ -163,6 +163,11 @@ module.exports = {
         try {
             const users = await usersCollection.aggregate([
                 {
+                    $match:{
+                        status:{$ne:'删除'}
+                    }
+                },
+                {
                     $project:{
                         _id:1,
                         name:1,
