@@ -183,6 +183,30 @@ module.exports = {
                 message: e.message || "Internal Server Error"
             });
         }
+    },
+    async UpdateUserStatus(req,res){
+        const {user_id,target_status} = req.body;
+        try {
+            const result = await usersCollection.updateOne(
+                { _id: new ObjectId(user_id) },
+                { $set: { status: target_status } }
+            );
+            if (result.matchedCount === 0) {
+                return res.status(404).json({
+                    status: 404,
+                    message: "User not found"
+                });
+            }
+            return res.json({
+                status:200,
+                message:"修改成功"
+            })
+        }catch (e){
+            return res.status(500).json({
+                status: 500,
+                message: e.message || "Internal Server Error"
+            });
+        }
     }
 
 };

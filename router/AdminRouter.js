@@ -193,5 +193,6 @@ adminRouter.post('/admin/changeSeat',SeatService.ChangeSeat)
 adminRouter.post('/admin/changeSeatStatus',SeatService.ChangeSeatStatus)
 // 批量修改座位的状态
 adminRouter.post('/admin/changeSeatStatusBatch',SeatService.ChangeSeatStatusBatch)
-
+// 修改用户的状态，是否在黑名单中
+adminRouter.post('/admin/changeUserStatus',UserInfoService.UpdateUserStatus)
 module.exports = adminRouter;
