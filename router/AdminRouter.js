@@ -127,7 +127,7 @@ adminRouter.post('/admin/change_seat_status',async (req,res) => {
 })
 // 为用户的投诉报告创建一个回复
 adminRouter.post('/admin/create_reply',ReportService.CreateReplyForReport)
-// 获取所有的投诉
+// 获取所有的投诉举报 //TODO:需要鉴权
 adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
 // 获取预约的详细信息
 adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)

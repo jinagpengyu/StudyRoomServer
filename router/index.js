@@ -59,15 +59,6 @@ indexRouter.post('/test/checkSession', async (req,res) => {
     await checkSessionExitWhitEmail(email)
     res.json("111")
 })
-indexRouter.post('/api/changeUsername', async (req,res) => {
-    const { username } = req.body;
-    const email = req.cookies.email;
-    const response = await changeUsername(username,email);
-    if(response.status === 200){
-        res.cookie('username',username);
-    }
-    res.json(response);
-})
 indexRouter.post('/api/users/delete', async (req,res) => {
     const email = req.cookies.email;
     const response = await deleteSpecificUser(email);

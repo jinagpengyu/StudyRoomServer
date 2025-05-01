@@ -40,9 +40,14 @@ module.exports = {
     },
     async GetAllReport_Admin(req, res){
         const result = await reportCollection.find().toArray();
-        return res.json({
-            status:200,
-            data:result
+        if (result.length <= 0) {
+            return res.status(400).json({
+                message:"没有报告"
+            })
+        }
+        return res.status(200).json({
+            data:result,
+            message:"成功获取所有报告"
         })
     },
     async GetAllReport_User(req,res){
