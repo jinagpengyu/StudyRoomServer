@@ -10,56 +10,28 @@ const {
 const ReportService = require('../Services/ReportService');
 const SeatService = require('../Services/SeatService');
 const UserInfoService = require('../Services/UserInfoService');
-// 添加一条新公告
-adminRouter.post('/admin/new_notice',async (req,res) => {
-    const {title,data} = req.body;
-    const InsertJson = {
-        title:title,
-        data:data,
-        status:"已发布",
-        publishDate: NowYYMMDDString(),
-        type:"公告"
-    }
-    const collection = getNewCollection('notice');
-    await collection.insertOne(InsertJson);
-    return res.json({
-        status:200,
-        message:"添加成功"
-    });
-})
+const NoticeService = require('../Services/NoticeService');
 //获取所有公告
-adminRouter.post('/admin/get_all_notice',async (req,res) => {
-    const collection = getNewCollection('notice');
-    const result = await collection.find().toArray();
-    if(result.length > 0){
-        return res.json({
-            status:200,
-            data:result
-        })
-    }
-    return res.json({
-        status:400,
-        data:""
-    })
-})
-//修改公告的状态，已发布或者隐藏
-adminRouter.post('/admin/change_notice_status',async (req,res) => {
-    const {id,status} = req.body;
-    const noticeCollection = getNewCollection('notice');
-    await noticeCollection.updateOne({
-        _id:new ObjectId(id)
-    },{
-        $set:{
-            status:status
-        }
-    })
-    res.json({
-        status:200,
-        message:"修改成功"
-    })
-})
-// 添加一条新公约
-adminRouter.post('/admin/new_convention',CreateNewConvention)
+adminRouter.post('/admin/get_all_notice',NoticeService.GetAllNotice)
+// 修改公告的状态，已发布或者隐藏
+// adminRouter.post('/admin/change_notice_status',async (req,res) => {
+//     const {id,status} = req.body;
+//     const noticeCollection = getNewCollection('notice');
+//     await noticeCollection.updateOne({
+//         _id:new ObjectId(id)
+//     },{
+//         $set:{
+//             status:status
+//         }
+//     })
+//     res.json({
+//         status:200,
+//         message:"修改成功"
+//     })
+// })
+// // 添加一条新公约
+// adminRouter.post('/admin/new_convention',CreateNewConvention)
+
 // 获取所有的公约
 adminRouter.post('/admin/all_convention',GetAllConventions)
 //预约一个座位
@@ -197,4 +169,8 @@ adminRouter.post('/admin/changeSeatStatusBatch',SeatService.ChangeSeatStatusBatc
 adminRouter.post('/admin/changeUserStatus',UserInfoService.UpdateUserStatus)
 // 删除用户 // TODO:需要鉴权
 adminRouter.post('/admin/deleteOneUser',UserInfoService.DeleteUser)
+// 添加新公告 // TODO:需要鉴权
+adminRouter.post('/admin/addNewNotice',NoticeService.AddNewNotice)
+// 删除一条公告
+adminRouter.post('/admin/deleteOneNotice',NoticeService.DeleteOneNotice)
 module.exports = adminRouter;
