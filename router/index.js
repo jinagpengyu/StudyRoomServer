@@ -7,6 +7,7 @@ const SeatService = require('../Services/SeatService')
 const UserInfoService = require('../Services/UserInfoService')
 const LoginService = require('../Services/LoginService')
 const NoticeService = require('../Services/NoticeService')
+const JWTService = require('../middleware/authenticateJWT')
 const { checkSessionStatus ,checkUserSessionStatus} = require("../sessionStore/checkBySessionID");
 const { changeUsername, deleteSpecificUser } = require('./api/UserInfo');
 const { checkUserRole, checkPermissionWithUserID } = require('../checkPermission/index');
@@ -231,7 +232,7 @@ indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
 // 获取所有的公约
 indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
 // 获取所有的个人投诉
-indexRouter.post('/user/getAllReport',ReportService.GetAllReport_User)
+indexRouter.post('/user/getAllReport', JWTService.authenticateJWT ,ReportService.GetAllReport_User)
 // 获取今明的日期
 indexRouter.post('/tool/getSelectDate',SeatService.GetSelectDate)
 module.exports = indexRouter

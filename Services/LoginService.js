@@ -24,9 +24,11 @@ module.exports = {
             res.cookie('email', email, { httpOnly: true });
             // 4. 生成JWT token
             const token = jwt.sign({
-                userId: user._id,
-                username: user.email,
-                role:user.role
+                user:{
+                    user_id: user._id,
+                    email: user.email,
+                    role: user.role
+                }
             }, process.env.JWT_SECRET || 'default-secret', {expiresIn: '1h'});
 
             // 5. 返回登录成功响应

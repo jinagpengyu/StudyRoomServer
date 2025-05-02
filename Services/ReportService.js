@@ -4,6 +4,7 @@ const {NowYYMMDDString} = require("../Tool/MyDate");
 const MyDateTool = require("../Tool/MyDate");
 const {GetUserId} = require("../Tool/UserTool");
 const assert = require("node:assert");
+const {deleteSpecificUser} = require("../router/api/UserInfo");
 module.exports = {
     async CreateNewReport(req,res){
         const {title,type,content} = req.body
@@ -81,14 +82,20 @@ module.exports = {
         })
     },
     async GetAllReport_User(req,res){
-        const email = req.cookies.email;
-        const user_id = await GetUserId(email);
+        const user = req.user;
         const result = await reportCollection.find({
-            user_id:new ObjectId(user_id)
+            user_id:new ObjectId(user.user_id)
         }).toArray();
-        return res.json({
-            status:200,
-            data:result
+
+        if (result.length <= 0) {
+            return res.status(400).json({
+                message:"没有数据"
+            })
+        }
+
+        return res.status(200).json({
+            data:result,
+            message:"获取成功"
         })
     }
 }
