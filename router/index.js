@@ -6,6 +6,7 @@ const ConventionService= require('../Services/ConventionService')
 const SeatService = require('../Services/SeatService')
 const UserInfoService = require('../Services/UserInfoService')
 const LoginService = require('../Services/LoginService')
+const NoticeService = require('../Services/NoticeService')
 const { checkSessionStatus ,checkUserSessionStatus} = require("../sessionStore/checkBySessionID");
 const { changeUsername, deleteSpecificUser } = require('./api/UserInfo');
 const { checkUserRole, checkPermissionWithUserID } = require('../checkPermission/index');
@@ -95,16 +96,7 @@ indexRouter.post('/user/character', async (req,res) => {
     })
 })
 //返回所有通知
-indexRouter.post('/api/getAllPublishNotice', async (req,res) => {
-    const noticeCollection = getNewCollection('notice');
-    return res.json({
-        status:200,
-        message:"获取所有通知成功",
-        data:await noticeCollection.find({
-            status:"已发布"
-        }).toArray()
-    })
-})
+indexRouter.post('/api/getAllPublishNotice', NoticeService.GetAllNotice)
 //预约座位模块：预约一个座位
 indexRouter.post('/api/seat/OrderOne',SeatService.OrderOneSeat)
 //预约座位模块：返回所选日期的座位预约情况
