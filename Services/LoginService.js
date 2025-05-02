@@ -29,7 +29,7 @@ module.exports = {
                     email: user.email,
                     role: user.role
                 }
-            }, process.env.JWT_SECRET || 'default-secret', {expiresIn: '1h'});
+            }, process.env.JWT_SECRET || 'default-secret', {expiresIn: '1d'});
 
             // 5. 返回登录成功响应
             res.status(200).json({
