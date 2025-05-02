@@ -193,7 +193,7 @@ indexRouter.post('/api/user/change/username',UserInfoService.UpdateUsername)
 // 修改邮箱
 indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)
 // 返回用户所有的预约记录
-indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,PrintSeatStatus], SeatService.GetAllOrderHistory)
+indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,JWTService.authenticateJWT], SeatService.GetAllOrderHistory)
 // 取消预约
 indexRouter.post('/user/cancelOrder',SeatService.CancelOrder)
 // 获取某个预约座位的用户信息和座位信息

@@ -49,53 +49,22 @@ module.exports = {
         })
     },
     async GetAllOrderHistory(req,res){
-        const email = req.cookies.email
-        const user_id = await GetUserId(email)
-        let result_json = []
-        let result
-        try {
-            result = await orderCollection.find({
-                user_id:new Object(user_id)
-            }).toArray()
-            if(result.length > 0){
-                for (const item of result) {
-                    let tmp
-                    if(item.status === "正常"){
-                        tmp = {
-                            id:item._id,
-                            seat_id:item.seat_id,
-                            order_date:item.order_date,
-                            create_time:await UserTool.GetFormatedDate(item.create_time),
-                            status:item.status,
-                            operation :[
-                                '取消预约'
-                            ]
-                        }
-                    }else{
-                        tmp = {
-                            id:item._id,
-                            seat_id:item.seat_id,
-                            order_date:item.order_date,
-                            create_time:await UserTool.GetFormatedDate(item.create_time),
-                            status:item.status,
-                            operation :[
-                                '详细'
-                            ]
-                        }
-                    }
-                    result_json.push(tmp)
-                }
-            }
-            return res.json({
-                status:200,
-                data:result_json
-            })
-        }catch (e){
-            return res.json({
-                status:400,
-                message:"获取失败"
+        const user = req.user;
+        const result = await orderCollection.find({
+            user_id:new ObjectId(user.user_id),
+            status: {$ne: "已删除"}
+        }).toArray();
+
+        if (result.length <= 0) {
+            return res.status(400).json({
+                message:"没有数据"
             })
         }
+
+        return res.status(200).json({
+            data:result,
+            message:"获取成功"
+        })
     },
     async CancelOrder (req,res) {
         const order_id = req.body.order_id
