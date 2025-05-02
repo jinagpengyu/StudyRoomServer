@@ -73,7 +73,7 @@ indexRouter.post('/api/users/orderHistory', async (req,res) =>{
 
     res.json(result);
 })
-//获取用户的角色
+// 获取用户的角色
 indexRouter.post('/user/character', async (req,res) => {
     const email = req.cookies.email;
 
@@ -96,11 +96,11 @@ indexRouter.post('/user/character', async (req,res) => {
         data:roles[0].role
     })
 })
-//返回所有通知
+// 返回所有通知
 indexRouter.post('/api/getAllPublishNotice', NoticeService.GetAllNotice)
-//预约座位模块：预约一个座位
+// 预约座位模块：预约一个座位
 indexRouter.post('/api/seat/OrderOne',SeatService.OrderOneSeat)
-//预约座位模块：返回所选日期的座位预约情况
+// 预约座位模块：返回所选日期的座位预约情况
 indexRouter.post('/api/seat/Status',async (req,res) => {
     const seat_count = []
     const {date} = req.body;
@@ -148,7 +148,7 @@ indexRouter.post('/api/seat/Status',async (req,res) => {
         data:seat_count
     })
 })
-//预约座位模块：换座
+// 预约座位模块：换座
 indexRouter.post('/api/seat/ChangeSeat',async (req,res) => {
     const {order_id,target_seat_id} = req.body;
     const ordersCollection = getNewCollection('orders');
@@ -164,7 +164,7 @@ indexRouter.post('/api/seat/ChangeSeat',async (req,res) => {
         meg:"换座成功"
     })
 })
-//返回明天和后天的日期
+// 返回明天和后天的日期
 indexRouter.post('/api/TodayAndTomorrow',async (req,res) => {
     const { TodayAndTomorrow  } = require("../Tool/MyDate");
     return res.json({
@@ -195,7 +195,7 @@ indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)
 // 返回用户所有的预约记录
 indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,JWTService.authenticateJWT], SeatService.GetAllOrderHistory)
 // 取消预约
-indexRouter.post('/user/cancelOrder',SeatService.CancelOrder)
+indexRouter.post('/user/cancelOrder',JWTService.authenticateJWT,SeatService.CancelOrder)
 // 获取某个预约座位的用户信息和座位信息
 indexRouter.post('/api/getOrderInfo', async (req, res) => {
     const { seat_id, order_date } = req.body;
