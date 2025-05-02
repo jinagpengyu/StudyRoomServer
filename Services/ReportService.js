@@ -1,6 +1,7 @@
 const {reportCollection} = require('../config/mongoDB')
 const { ObjectId } = require('mongodb');
 const {NowYYMMDDString} = require("../Tool/MyDate");
+const MyDateTool = require("../Tool/MyDate");
 const {GetUserId} = require("../Tool/UserTool");
 const assert = require("node:assert");
 module.exports = {
@@ -13,7 +14,7 @@ module.exports = {
             type:type,
             content:content,
             status:"待处理",
-            report_date:new Date().getTime(),
+            report_date:MyDateTool.GetSelectDate().todayDate,
         }
         await reportCollection.insertOne(insertJson);
         return res.json({
@@ -23,31 +24,60 @@ module.exports = {
     },
     async CreateReplyForReport(req, res) {
         const {reply_content,report_id} = req.body;
-        await reportCollection.updateOne({
+        const result = await reportCollection.updateOne({
             _id:new ObjectId(report_id)
         },{
             $set:{
                 reply:{
                     reply_content:reply_content,
                     replyDate:NowYYMMDDString()
-                }
+                },
+                status:'已处理'
             }
         });
-        return res.json({
-            status:200,
+
+        if (result.matchedCount === 0) {
+            return res.status(400).json({
+                message:"回复失败"
+            })
+        }
+
+        return res.status(200).json({
             message:"回复成功"
         })
     },
     async GetAllReport_Admin(req, res){
-        const result = await reportCollection.find().toArray();
+        const result = await reportCollection.aggregate([
+            {
+                $lookup:{
+                    from:"users",
+                    localField:"user_id",
+                    foreignField:"_id",
+                    as:"user_info"
+                }
+            },
+            {
+                $project:{
+                    user_name:{ $arrayElemAt: ["$user_info.name", 0] },
+                    title:1,
+                    type:1,
+                    content:1,
+                    status:1,
+                    report_date:1,
+                    reply:1
+                }
+            }
+        ]).toArray();
+
         if (result.length <= 0) {
             return res.status(400).json({
-                message:"没有报告"
+                message:"没有数据"
             })
         }
+
         return res.status(200).json({
             data:result,
-            message:"成功获取所有报告"
+            message:"获取成功"
         })
     },
     async GetAllReport_User(req,res){
