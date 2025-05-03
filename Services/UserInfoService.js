@@ -1,29 +1,28 @@
 const { GetUserId } = require("../Tool/UserTool");
-const { usersCollection } = require('../config/mongoDB'); // 假设 usersCollection 从数据库模块导入
+const { usersCollection } = require('../config/mongoDB');
 const { ObjectId } = require("mongodb"); // 假设使用 MongoDB 的 ObjectID
 
 module.exports = {
     async GetOneUserInfo(req, res) {
-        const user_id = await GetUserId(req.cookies.email);
+        const user = req.user;
         try {
-            let result;
-            result = await usersCollection.findOne({
-                _id: new ObjectId(user_id) // 使用 MongoDB 的 ObjectID
-            });
-            if (result) {
-                return res.json({
-                    status: 200,
-                    data: result
-                });
-            } else {
-                new Error('User not found'); // 具体化错误信息
+            const result = await usersCollection.findOne(
+                {_id: new ObjectId(user.user_id)},
+                {$project: {password: 0, create_time: 0}}
+            )
+
+            if ( !result ) {
+                return res.status(400).json({ message: '用户不存在' })
             }
+
+            return res.status(200).json({
+                message: '获取用户信息成功',
+                data: result
+            })
         } catch (e) {
-            console.error(e); // 打印错误日志，便于排查
-            return res.status(500).json({
-                status: 500,
-                message: e.message || "Internal Server Error" // 返回错误信息
-            });
+            return res.status(400).json({
+                message: "Invalid or expired token"
+            })
         }
     },
     async UpdateUsername(req, res) {

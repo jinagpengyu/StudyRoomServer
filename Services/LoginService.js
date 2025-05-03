@@ -15,14 +15,20 @@ module.exports = {
             })
 
             // 3. 验证密码
-            // const valid = await bcrypt.compare(password, user.password);
-            if(user.password !== password){
-                return res.json({
-                    status: 400,
-                    message: '密码错误'
+            const valid = await bcrypt.compare(password, user.password);
+            if ( !valid ) {
+                return res.status(401).json({
+                    status: 401,
+                    message: 'Invalid password'
                 })
             }
-            res.cookie('email', email, { httpOnly: true });
+            // if(user.password !== password){
+            //     return res.json({
+            //         status: 400,
+            //         message: '密码错误'
+            //     })
+            // }
+            // res.cookie('email', email, { httpOnly: true });
             // 4. 生成JWT token
             const token = jwt.sign({
                 user:{
@@ -68,11 +74,13 @@ module.exports = {
             const hashedPassword = await bcrypt.hash(password, 10);
             // 5. 创建用户文档
             const newUser = {
+                phone: phone,
                 email:email,
                 password: hashedPassword,
                 name: username,
                 role: 'user', // 默认角色
-                create_time: new Date()
+                create_time: new Date(),
+                status: '正常'
             };
 
             // 6. 保存到数据库

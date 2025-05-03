@@ -9,6 +9,8 @@ const NoticeService = require('../Services/NoticeService')
 const JWTService = require('../middleware/authenticateJWT')
 const { getNewCollection } = require('../config/mongoDB');
 const { UpdateSeatStatus } = require('./interceptor/SeatInterceptor')
+
+indexRouter.use(JWTService.authenticateJWT)
 // 登录
 indexRouter.post('/api/login', LoginService.LoginService);
 // 退出登录
@@ -69,7 +71,7 @@ indexRouter.post('/api/seat/Status',async (req,res) => {
     })
 })
 // 预约座位模块：换座
-indexRouter.post('/user/changeSeat',JWTService.authenticateJWT,SeatService.UserChangeSeat);
+indexRouter.post('/user/changeSeat',SeatService.UserChangeSeat);
 /**
  * @description 修改用户名
  * @route POST /api/user/change/username
@@ -79,17 +81,17 @@ indexRouter.post('/api/user/change/username',UserInfoService.UpdateUsername)
 // 修改邮箱
 indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)
 // 返回用户所有的预约记录
-indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,JWTService.authenticateJWT], SeatService.GetAllOrderHistory)
+indexRouter.post('/user/getAllOrders',[UpdateSeatStatus], SeatService.GetAllOrderHistory)
 // 取消预约
-indexRouter.post('/user/cancelOrder',JWTService.authenticateJWT,SeatService.CancelOrder)
+indexRouter.post('/user/cancelOrder',SeatService.CancelOrder)
 // 添加一个投诉
 indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
 // 获取所有的公约
 indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
 // 获取所有的个人投诉
-indexRouter.post('/user/getAllReport', JWTService.authenticateJWT ,ReportService.GetAllReport_User)
+indexRouter.post('/user/getAllReport' ,ReportService.GetAllReport_User)
 // 获取今明的日期
 indexRouter.post('/tool/getSelectDate',SeatService.GetSelectDate)
 // 返回某个日期下的所有可预约的座位
-indexRouter.post('/user/getActiveSeat',JWTService.authenticateJWT,SeatService.GetAllActiveSeat)
+indexRouter.post('/user/getActiveSeat',SeatService.GetAllActiveSeat)
 module.exports = indexRouter
