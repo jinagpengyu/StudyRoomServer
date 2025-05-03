@@ -1,13 +1,13 @@
 const express = require('express');
 const adminRouter = express.Router();
-const { getNewCollection } = require('../config/mongoDB')
-const {TodayAndTomorrow, NowYYMMDDString} = require("../Tool/MyDate");
-const {ObjectId} = require("mongodb");
 const ConventionService = require('../Services/ConventionService');
 const ReportService = require('../Services/ReportService');
 const SeatService = require('../Services/SeatService');
 const UserInfoService = require('../Services/UserInfoService');
 const NoticeService = require('../Services/NoticeService');
+const JWTService = require('../middleware/authenticateJWT');
+
+adminRouter.use(JWTService.authenticateJWT)
 //获取所有公告
 adminRouter.post('/admin/get_all_notice',NoticeService.GetAllNotice)
 // 所有的用户信息 //TODO:需要鉴权
