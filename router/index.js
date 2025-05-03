@@ -1,5 +1,4 @@
 const express = require('express');
-const { ObjectId } = require('mongodb')
 const indexRouter = express.Router();
 const ReportService = require('../Services/ReportService')
 const ConventionService= require('../Services/ConventionService')
@@ -8,94 +7,16 @@ const UserInfoService = require('../Services/UserInfoService')
 const LoginService = require('../Services/LoginService')
 const NoticeService = require('../Services/NoticeService')
 const JWTService = require('../middleware/authenticateJWT')
-const { checkSessionStatus ,checkUserSessionStatus} = require("../sessionStore/checkBySessionID");
-const { changeUsername, deleteSpecificUser } = require('./api/UserInfo');
-const { checkUserRole, checkPermissionWithUserID } = require('../checkPermission/index');
-const { getSeatInfo,createSeats} = require('./api/SeatInfo');
-const { getSpecificUserOrderHistory } = require('./api/OrderHistory');
-const collectionUserRole = require('../config/mongoDB').getNewCollection("user_role");
 const { getNewCollection } = require('../config/mongoDB');
-const { UpdateSeatStatus, PrintSeatStatus } = require('./interceptor/SeatInterceptor')
-c=
+const { UpdateSeatStatus } = require('./interceptor/SeatInterceptor')
 // 登录
 indexRouter.post('/api/login', LoginService.LoginService);
 // 退出登录
 indexRouter.post('/users/login/out', LoginService.Logout)
-indexRouter.post('/users/login/status', async (req,res) => {
-    const email = req.cookies.email;
-    console.log(`email : ${email}`);
-    if(! await checkUserSessionStatus(email))
-        return res.json({status:401, message: "User have not login in System"});
-    return res.json({status:200, message: "User have login system"});
-})
-indexRouter.post('/api/checkLoginSession',async (req,res) => {
-    const sessionID = req.cookies.sessionID;
-    if(sessionID === null)
-        return res.json({message:"sessionID is null",status:300});
-    if(! await checkSessionStatus(sessionID))
-        return res.json({message:"session out of date",status:301});
-    res.json({message:"session pass",status:200});
-})
-const RegisterApi = require('./api/Register')
+// 注册
 indexRouter.post('/api/register',LoginService.RegisterUser)
-indexRouter.post('/test/checkUserRole', (req, res) => {
-    const {user_id} = req.body
-    checkUserRole(user_id)
-})
-indexRouter.post('/test/checkPermissionWithUserID', async (req, res) => {
-    const {user_id} = req.body
-    let funRes = null
-    await checkPermissionWithUserID(user_id, "view").then(r => {
-        funRes = r
-    })
-    console.log(funRes)
-})
 // 获取用户的信息
 indexRouter.post('/api/userInfo',UserInfoService.GetOneUserInfo )
-indexRouter.post('/api/getSeatInfo' , getSeatInfo)
-indexRouter.post('/api/orderSeat' , createSeats)
-const { checkSessionExitWhitEmail } = require("../sessionStore/index")
-const {getUserID} = require("../sessionStore");
-indexRouter.post('/test/checkSession', async (req,res) => {
-    const email =  req.body
-    await checkSessionExitWhitEmail(email)
-    res.json("111")
-})
-indexRouter.post('/api/users/delete', async (req,res) => {
-    const email = req.cookies.email;
-    const response = await deleteSpecificUser(email);
-    res.json(response);
-})
-indexRouter.post('/api/users/orderHistory', async (req,res) =>{
-    const email = req.cookies.email;
-
-    const result = await getSpecificUserOrderHistory(email);
-
-    res.json(result);
-})
-// 获取用户的角色
-indexRouter.post('/user/character', async (req,res) => {
-    const email = req.cookies.email;
-
-    const roles = await collectionUserRole.find({
-        email:email
-    }).toArray();
-    console.log(roles[0]);
-    if(roles.length <= 0) {
-        return res.json({
-            email:email,
-            status: 301,
-            message: "无角色",
-            data:""
-        })
-    }
-    return res.json({
-        email:email,
-        status:200,
-        message:"找到角色属性",
-        data:roles[0].role
-    })
-})
 // 返回所有通知
 indexRouter.post('/api/getAllPublishNotice', NoticeService.GetAllNotice)
 // 预约座位模块：预约一个座位
@@ -150,26 +71,6 @@ indexRouter.post('/api/seat/Status',async (req,res) => {
 })
 // 预约座位模块：换座
 indexRouter.post('/user/changeSeat',JWTService.authenticateJWT,SeatService.UserChangeSeat);
-// 返回明天和后天的日期
-indexRouter.post('/api/TodayAndTomorrow',async (req,res) => {
-    const { TodayAndTomorrow  } = require("../Tool/MyDate");
-    return res.json({
-        status:200,
-        data:TodayAndTomorrow()
-    })
-})
-// 返回用户的所有操作记录
-indexRouter.post('/api/user/operations',async (req,res) => {
-    const email = req.cookies.email;
-    const collection = getNewCollection('seat_operation');
-    const result = await collection.find({
-        email:email
-    }).toArray();
-    return res.json({
-        status:200,
-        data:result
-    })
-})
 /**
  * @description 修改用户名
  * @route POST /api/user/change/username
@@ -182,37 +83,6 @@ indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)
 indexRouter.post('/user/getAllOrders',[UpdateSeatStatus,JWTService.authenticateJWT], SeatService.GetAllOrderHistory)
 // 取消预约
 indexRouter.post('/user/cancelOrder',JWTService.authenticateJWT,SeatService.CancelOrder)
-// 获取某个预约座位的用户信息和座位信息
-indexRouter.post('/api/getOrderInfo', async (req, res) => {
-    const { seat_id, order_date } = req.body;
-    const ordersCollection = getNewCollection('orders');
-    const usersCollection = getNewCollection('users');
-
-    const order = await ordersCollection.findOne({
-        seat_id,
-        order_date,
-        status: "正常"
-    });
-
-    if (!order) {
-        return res.json({
-            status: 300,
-            message: "该座位没有预约记录"
-        });
-    }
-
-    const user = await usersCollection.findOne({
-        _id: new ObjectId(order.user_id)
-    });
-
-    return res.json({
-        status: 200,
-        data: {
-            user_info: user,
-            order_info: order
-        }
-    });
-});
 // 添加一个投诉
 indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
 // 获取所有的公约
