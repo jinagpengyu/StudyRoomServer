@@ -35,7 +35,7 @@ module.exports = {
                 message:"您已经在当天预约过座位了，一人一天最多预约一个座位"
             })
         }
-        // TODO:检查用户是否处于黑名单中
+        // TODO 检查用户是否处于黑名单中
         await orderCollection.insertOne({
             user_id:new Object(user_id),
             seat_id:seat_id,

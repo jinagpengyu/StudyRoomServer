@@ -9,6 +9,7 @@ client.connect().then(() => {
 
 const db = client.db('local')
 const collection = db.collection(db_name)
+
 const conventionCollection = db.collection('convention')
 const reportCollection = db.collection('report')
 const orderCollection = db.collection('orders')

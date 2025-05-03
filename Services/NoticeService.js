@@ -38,7 +38,7 @@ module.exports = {
         }
     },
     async GetAllNotice(req,res) {
-        try {
+        try {// TODO 要按身份返回不同的公告
             const result = await noticeCollection.find(
                 {
                     status: {$ne: "删除"}
@@ -78,4 +78,5 @@ module.exports = {
         })
 
     }
+
 }

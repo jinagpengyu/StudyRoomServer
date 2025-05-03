@@ -5,6 +5,7 @@ const {usersCollection} = require('../config/mongoDB')
 module.exports = {
     async LoginService(req, res) {
         try {
+            // TODO 判断客户端的可用状态
             // 1. 解析请求参数
             const {email, password} = req.body;
 
