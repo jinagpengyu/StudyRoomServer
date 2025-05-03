@@ -135,8 +135,8 @@ adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
 adminRouter.post('/admin/getAllOrderHistory',SeatService.GetAllUserOrderHistory)
 // 删除一条预约信息
 adminRouter.post('/admin/deleteOneOrder',SeatService.DeleteOneOrder)
-// 为用户换座
-adminRouter.post('/admin/changeSeat',SeatService.ChangeSeat)
+// 为用户换座 //TODO: 添加专属的换座函数
+// adminRouter.post('/admin/changeSeat',SeatService.ChangeSeat)
 // 修改座位的状态，暂停预约或可预约
 adminRouter.post('/admin/changeSeatStatus',SeatService.ChangeSeatStatus)
 // 批量修改座位的状态

@@ -149,21 +149,7 @@ indexRouter.post('/api/seat/Status',async (req,res) => {
     })
 })
 // 预约座位模块：换座
-indexRouter.post('/api/seat/ChangeSeat',async (req,res) => {
-    const {order_id,target_seat_id} = req.body;
-    const ordersCollection = getNewCollection('orders');
-    await ordersCollection.updateOne({
-        order_id:order_id
-    },{
-        $set:{
-            seat_id:target_seat_id
-        }
-    })
-    return res.json({
-        status:200,
-        meg:"换座成功"
-    })
-})
+indexRouter.post('/user/changeSeat',JWTService.authenticateJWT,SeatService.UserChangeSeat);
 // 返回明天和后天的日期
 indexRouter.post('/api/TodayAndTomorrow',async (req,res) => {
     const { TodayAndTomorrow  } = require("../Tool/MyDate");
@@ -235,4 +221,6 @@ indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
 indexRouter.post('/user/getAllReport', JWTService.authenticateJWT ,ReportService.GetAllReport_User)
 // 获取今明的日期
 indexRouter.post('/tool/getSelectDate',SeatService.GetSelectDate)
+// 返回某个日期下的所有可预约的座位
+indexRouter.post('/user/getActiveSeat',JWTService.authenticateJWT,SeatService.GetAllActiveSeat)
 module.exports = indexRouter

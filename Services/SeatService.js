@@ -203,28 +203,35 @@ module.exports = {
             message:"删除成功"
         })
     },
-    async ChangeSeat(req,res){
-        // TODO:  需要验证权限
+    async UserChangeSeat(req,res){
+        const user = req.user;
         const {order_id,target_seat_id} = req.body;
-        const order = await orderCollection.findOne({
-            _id: new ObjectId(order_id)
-        })
-        await orderCollection.updateOne(
-            { _id: new ObjectId(order_id) },
-            { $set: { status : '换座' } }
+        const result = await orderCollection.updateOne(
+            {
+                _id: new ObjectId(order_id),
+                user_id: new ObjectId(user.user_id),
+                status: "正常"
+            },
+            { $set: { seat_id: target_seat_id } }
         );
-        await orderCollection.insertOne({
-            user_id: order.user_id,
-            seat_id: target_seat_id,
-            order_date: order.order_date,
-            status: "正常",
-            create_time: MyDateTool.GetSelectDate().todayDate
-        })
-        return res.json({
-            status:200,
-            message:"换座成功"
+
+        if (result.matchedCount === 0) {
+            return res.status(400).json({
+                message:"预约记录不存在"
+            })
+        }
+
+        return res.status(200).json({
+            message:"修改成功"
         })
     },
+    /**
+     * 修改单个座位状态
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async ChangeSeatStatus(req,res){
         const {seat_id,target_status} = req.body;
         //TODO:鉴权
@@ -237,6 +244,13 @@ module.exports = {
             message:"修改成功"
         })
     },
+    /**
+     * 批量修改座位状态
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async ChangeSeatStatusBatch(req,res){
         const { seat_arr , target_status} = req.body;
         await seatCollection.updateMany(
@@ -247,5 +261,69 @@ module.exports = {
             status:200,
             message:"修改成功"
         })
+    },
+    async GetAllActiveSeat(req,res){
+        const { order_date } = req.body;
+        //TODO: 需要完善，MongoDB使用错误
+        try {
+            const result = await seatCollection.aggregate([
+                // 第一步：筛选出所有可预约的座位
+                {
+                    $match: {
+                        seat_status: "可预约"
+                    }
+                },
+                // 第二步：关联订单集合，查找当天已预约的记录
+                {
+                    $lookup: {
+                        from: "orders",
+                        let: { seatId: "$seat_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$seat_id", "$$seatId"] },
+                                            { $eq: ["$order_date", order_date] },
+                                            { $eq: ["$status", "正常"] }
+                                        ]
+                                    }
+                                }
+                            }
+                        ],
+                        as: "orders"
+                    }
+                },
+                // 第三步：只保留那些当天没有被预约的座位
+                {
+                    $match: {
+                        orders: { $size: 0 }
+                    }
+                },
+                // 第四步：清理不需要的字段
+                {
+                    $project: {
+                        orders: 0
+                    }
+                }
+            ]).toArray();
+
+
+            if (result.length <= 0) {
+                return res.status(400).json({
+                    message: "获取失败," + e.message
+                })
+            }
+
+            return res.status(200).json({
+                data: result,
+                message: "获取成功"
+            })
+
+        } catch (e) {
+            return res.status(409).json({
+                message: "获取失败," + e.message
+            })
+        }
     }
 }
