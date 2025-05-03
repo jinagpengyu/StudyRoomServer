@@ -193,7 +193,6 @@ module.exports = {
     },
     async DeleteOneOrder(req,res){
         const {order_id} = req.body;
-        //TODO: 需要验证权限
         await orderCollection.updateOne(
             { _id: new ObjectId(order_id) },
             { $set: { status: "已删除" } }
@@ -267,7 +266,6 @@ module.exports = {
      */
     async ChangeSeatStatus(req,res){
         const {seat_id,target_status} = req.body;
-        //TODO:鉴权
         await seatCollection.updateOne(
             {seat_id:seat_id},
             { $set: { seat_status: target_status } }
@@ -297,7 +295,7 @@ module.exports = {
     },
     async GetAllActiveSeat(req,res){
         const { order_date } = req.body;
-        //TODO: 需要完善，MongoDB使用错误
+
         try {
             const result = await seatCollection.aggregate([
                 // 第一步：筛选出所有可预约的座位

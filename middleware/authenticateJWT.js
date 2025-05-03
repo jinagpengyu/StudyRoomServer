@@ -26,6 +26,17 @@ module.exports = {
             // 没有提供 token
             return res.status(401).json({ message: 'Access token is required' });
         }
+    },
+    async verifyRoleAsync (req, res, next) {
+        const user = req.user;
+        try {
+            if (!user || user.role !== 'admin') {
+                return res.status(403).json({ message: 'Access denied' });
+            }
+            next();
+        } catch (e) {
+            return res.status(403).json({ message: 'Invalid or expired token' });
+        }
     }
 }
 

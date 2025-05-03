@@ -5,18 +5,22 @@ const ReportService = require('../Services/ReportService');
 const SeatService = require('../Services/SeatService');
 const UserInfoService = require('../Services/UserInfoService');
 const NoticeService = require('../Services/NoticeService');
+const SystemService = require('../Services/SystemService');
 const JWTService = require('../middleware/authenticateJWT');
 
-adminRouter.use(JWTService.authenticateJWT)
+adminRouter.use(
+    JWTService.authenticateJWT,
+    JWTService.verifyRoleAsync
+)
 //获取所有公告
 adminRouter.post('/admin/get_all_notice',NoticeService.GetAllNotice)
-// 所有的用户信息 //TODO:需要鉴权
+// 所有的用户信息
 adminRouter.post('/admin/get_user_info',UserInfoService.GetAllUserInfo)
 // 返回所有的座位信息
 adminRouter.post('/admin/getAllSeats',SeatService.GetAllSeatInfo)
 // 为用户的投诉报告创建一个回复
 adminRouter.post('/admin/create_reply',ReportService.CreateReplyForReport)
-// 获取所有的投诉举报 //TODO:需要鉴权
+// 获取所有的投诉举报
 adminRouter.post('/admin/getAllReport',ReportService.GetAllReport_Admin)
 // 获取预约的详细信息
 adminRouter.post('/admin/getOrderUserInfo',SeatService.GetOrderDetail)
@@ -32,9 +36,9 @@ adminRouter.post('/admin/changeSeatStatus',SeatService.ChangeSeatStatus)
 adminRouter.post('/admin/changeSeatStatusBatch',SeatService.ChangeSeatStatusBatch)
 // 修改用户的状态，是否在黑名单中
 adminRouter.post('/admin/changeUserStatus',UserInfoService.UpdateUserStatus)
-// 删除用户 // TODO:需要鉴权
+// 删除用户
 adminRouter.post('/admin/deleteOneUser',UserInfoService.DeleteUser)
-// 添加新公告 // TODO:需要鉴权
+// 添加新公告
 adminRouter.post('/admin/addNewNotice',NoticeService.AddNewNotice)
 // 删除一条公告
 adminRouter.post('/admin/deleteOneNotice',NoticeService.DeleteOneNotice)
@@ -46,4 +50,8 @@ adminRouter.post('/admin/changeConventionContext',ConventionService.UpdateOneCon
 adminRouter.post('/admin/deleteOneConvention',ConventionService.DeleteOneConvention)
 // 新建公约
 adminRouter.post('/admin/createNewConvention',ConventionService.CreateNewConvention)
+// 修改客户端的状态
+adminRouter.post('/admin/closeClient',SystemService.UpdateClientStatus);
+// 获取当前客户端的状态
+adminRouter.post('/admin/getClientStatus',SystemService.GetClientStatus);
 module.exports = adminRouter;
