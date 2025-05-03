@@ -29,8 +29,6 @@ describe('POST /user/addNewReport', () => {
 
     it('测试 GetSelectDate 函数',() => {
         const selectDate = MyDateTool.GetSelectDate();
-        console.log(selectDate.todayDate.toISOString())
-        console.log(selectDate.tomorrowDate.toISOString())
         expect(selectDate.todayDate).toBe('2025-04-20')
     })
 

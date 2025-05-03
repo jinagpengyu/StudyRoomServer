@@ -25,7 +25,6 @@ indexRouter.post('/api/seat/OrderOne',SeatService.OrderOneSeat)
 indexRouter.post('/api/seat/Status',async (req,res) => {
     const seat_count = []
     const {date} = req.body;
-    console.log(date)
     const seatCollection = getNewCollection('seats');
     const ordersCollection = getNewCollection('orders')
     const seats = await seatCollection.find().toArray()

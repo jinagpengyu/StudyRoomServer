@@ -13,7 +13,6 @@ const exitUserID = async (user_id) => {
     const res = await collection.find(
         {user_id: user_id}
     ).toArray();
-    // console.log(res)
     if (res.length === 0) {
         return 0
     } else {

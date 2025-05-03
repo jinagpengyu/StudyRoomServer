@@ -77,7 +77,6 @@ module.exports = {
             // 6. 保存到数据库
             const result = await usersCollection.insertOne(newUser);
 
-            console.log(result);
             // 7. 返回成功响应（不包含密码）
             res.status(200).json({
                 status: 200,
