@@ -203,6 +203,13 @@ module.exports = {
             message:"删除成功"
         })
     },
+    /**
+     * 用户修改预约的座位
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async UserChangeSeat(req,res){
         const user = req.user;
         const {order_id,target_seat_id} = req.body;
@@ -214,6 +221,32 @@ module.exports = {
             },
             { $set: { seat_id: target_seat_id } }
         );
+
+        if (result.matchedCount === 0) {
+            return res.status(400).json({
+                message:"预约记录不存在"
+            })
+        }
+
+        return res.status(200).json({
+            message:"修改成功"
+        })
+    },
+    /**
+     * 管理员修改预约的座位
+     * @param req
+     * @param res
+     * @returns {Promise<void>}
+     * @constructor
+     */
+    async AdminChangeSeat(req,res){
+        const { order_id, target_seat_id } = req.body;
+        const result = await orderCollection.updateOne({
+            _id: new ObjectId(order_id),
+            status: "正常"
+        }, {
+            $set: { seat_id: target_seat_id }
+        });
 
         if (result.matchedCount === 0) {
             return res.status(400).json({
