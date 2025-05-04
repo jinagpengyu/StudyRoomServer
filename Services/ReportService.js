@@ -7,21 +7,31 @@ const assert = require("node:assert");
 const {deleteSpecificUser} = require("../router/api/UserInfo");
 module.exports = {
     async CreateNewReport(req,res){
-        const {title,type,content} = req.body
-        const email = req.cookies.email;
-        const insertJson = {
-            user_id:new ObjectId(await GetUserId(email)),
-            title:title,
-            type:type,
-            content:content,
-            status:"待处理",
-            report_date:MyDateTool.GetSelectDate().todayDate,
+        try {
+            const {title,type,content} = req.body
+            const user = req.user;
+            const insertJson = {
+                user_id:new ObjectId(user.user_id),
+                title:title,
+                type:type,
+                content:content,
+                status:"待处理",
+                report_date:MyDateTool.GetSelectDate().todayDate,
+            }
+            const result = await reportCollection.insertOne(insertJson);
+            if ( !result.acknowledged ) {
+                return res.status(400).json({
+                    message:"报告失败"
+                })
+            }
+
+            return res.json({
+                status:200,
+                message:"报告成功"
+            })
+        } catch (e) {
+            console.error(e)
         }
-        await reportCollection.insertOne(insertJson);
-        return res.json({
-            status:200,
-            message:"报告成功"
-        })
     },
     async CreateReplyForReport(req, res) {
         const {reply_content,report_id} = req.body;
