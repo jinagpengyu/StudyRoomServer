@@ -27,28 +27,20 @@ module.exports = {
     },
     async UpdateUsername(req, res) {
         const {  name } = req.body; // 解构请求体参数
-        const email = req.cookies.email
+        const user = req.user;
         try {
             // 检查输入是否为空
-            if (!email || !name) {
+            if ( !name) {
                 return res.status(400).json({
                     status: 400,
                     message: "Missing required fields: email or name"
                 });
             }
 
-            // 获取用户 ID
-            const user_id = await GetUserId(email);
-            if (!user_id) {
-                return res.status(404).json({
-                    status: 404,
-                    message: "User not found"
-                });
-            }
 
             // 更新用户名
             const result = await usersCollection.updateOne(
-                { _id: new ObjectId(user_id) },
+                { _id: user.user_id },
                 { $set: { name: name } }
             );
 
@@ -80,7 +72,7 @@ module.exports = {
         }
     },
     async UpdateEmail(req, res) {
-        const currentEmail = req.cookies.email; // 当前用户的邮箱（从 cookie 中获取）
+        const user = req.user;
         const newEmail = req.body.email; // 新邮箱（从请求体中获取）
 
         try {
@@ -92,18 +84,9 @@ module.exports = {
                 });
             }
 
-            // 2. 获取当前用户 ID
-            const user_id = await GetUserId(currentEmail);
-            if (!user_id) {
-                return res.status(404).json({
-                    status: 404,
-                    message: "User not found"
-                });
-            }
-
             // 3. 更新邮箱
             const result = await usersCollection.updateOne(
-                { _id: new ObjectId(user_id) },
+                { _id: new ObjectId(user.user_id) },
                 { $set: { email: newEmail } }
             );
             if (result.modifiedCount > 0) {
