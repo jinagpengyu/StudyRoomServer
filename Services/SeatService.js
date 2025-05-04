@@ -26,6 +26,15 @@ module.exports = {
         try {
             const user = req.user;
             let result;
+            // 检查是否为黑名单用户，如果是则不允许预约
+            result = await usersCollection.findOne({
+                _id: new ObjectId(user.user_id)
+            })
+            if ( result.status === '黑名单' ) {
+                return res.status(400).json({
+                    message: "你被加入到黑名单中，无法预约座位"
+                })
+            }
             // 检查用户这一天是否已经预约过座位了
             result = await orderCollection.findOne(
                 {

@@ -8,6 +8,14 @@ const {
 const { ObjectId } = require('mongodb');
 const MyDateTool = require('../Tool/MyDate');
 module.exports = {
+    /**
+     * 从token中提取user 信息
+     * @param req
+     *  @param req.user - 用户信息
+     * @param res
+     * @param next
+     * @returns {*}
+     */
     authenticateJWT (req, res, next) {
         // 从请求头中获取 Authorization 字段
         const authHeader = req.headers.authorization;
@@ -33,6 +41,15 @@ module.exports = {
             return res.status(401).json({ message: 'Access token is required' });
         }
     },
+    /**
+     * 验证管理员身份
+     * @role admin
+     * @param req
+     *  @param req.user - 用户信息
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async verifyRoleAsync (req, res, next) {
         const user = req.user;
         try {
@@ -105,6 +122,34 @@ module.exports = {
             )
             next();
         }
-    }
+    },
+    /**
+     * 检查用户端的可用性，如果设置用户端不可用，返回错误信息，只针对用户角色
+     * @role user
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    async checkClientStatus (req, res, next) {
+        try {
+            const user = req.user;
+            if ( user.role === 'admin' ) {
+                next();
+            }
+            const result = await systemCollection.findOne({
+                system_id: new ObjectId(system_id)
+            });
+
+            if ( !result.status ) {
+                return res.status(403).json({ message: 'Client is not available' });
+            }
+
+            next();
+        } catch (e) {
+            return res.status(403).json({ message: 'Invalid or expired token' });
+        }
+    },
+
 }
 

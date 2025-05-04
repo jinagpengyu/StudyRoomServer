@@ -3,6 +3,14 @@ const { usersCollection } = require('../config/mongoDB');
 const { ObjectId } = require("mongodb"); // 假设使用 MongoDB 的 ObjectID
 
 module.exports = {
+    /**
+     * 获取单个用户的信息
+     * @param req
+     *  @param req.user - 通过token获取的user信息，主要存储user_id
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async GetOneUserInfo(req, res) {
         const user = req.user;
         try {
@@ -25,6 +33,13 @@ module.exports = {
             })
         }
     },
+    /**
+     * 获取
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async UpdateUsername(req, res) {
         const {  name } = req.body; // 解构请求体参数
         const user = req.user;

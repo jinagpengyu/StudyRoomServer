@@ -1,11 +1,12 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {usersCollection} = require('../config/mongoDB')
+const {usersCollection, systemCollection} = require('../config/mongoDB')
+const { ObjectId } = require('mongodb')
+const system_id = process.env.SYSTEM_ID;
 
 module.exports = {
     async LoginService(req, res) {
         try {
-            // TODO 判断客户端的可用状态
             // 1. 解析请求参数
             const {email, password} = req.body;
 
@@ -13,13 +14,23 @@ module.exports = {
             let user = await usersCollection.findOne({
                 email:email
             })
+            // 判断客户端的可用状态
+            const system = await systemCollection.findOne({
+                _id: new ObjectId(system_id)
+            })
+            if ( !system.client_system && user.role === 'user' ) {
+                return res.status(401).json({
+                    status: 401,
+                    message: '客户端不可用'
+                })
+            }
 
             // 3. 验证密码
             const valid = await bcrypt.compare(password, user.password);
             if ( !valid ) {
                 return res.status(401).json({
                     status: 401,
-                    message: 'Invalid password'
+                    message: '密码错误'
                 })
             }
             // if(user.password !== password){
