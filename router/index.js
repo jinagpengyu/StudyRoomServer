@@ -7,16 +7,16 @@ const UserInfoService = require('../Services/UserInfoService')
 const LoginService = require('../Services/LoginService')
 const NoticeService = require('../Services/NoticeService')
 const JWTService = require('../middleware/authenticateJWT')
-const { getNewCollection } = require('../config/mongoDB');
 const { UpdateSeatStatus } = require('./interceptor/SeatInterceptor')
 
-indexRouter.use(JWTService.authenticateJWT)
-// 登录
-indexRouter.post('/api/login', LoginService.LoginService);
-// 退出登录
-indexRouter.post('/users/login/out', LoginService.Logout)
 // 注册
 indexRouter.post('/api/register',LoginService.RegisterUser)
+// 登录
+indexRouter.post('/api/login',JWTService.updateSeatStatus ,LoginService.LoginService);
+// 中间件
+indexRouter.use(JWTService.authenticateJWT)
+// 退出登录
+indexRouter.post('/users/login/out', LoginService.Logout)
 // 获取用户的信息
 indexRouter.post('/api/userInfo',UserInfoService.GetOneUserInfo )
 // 返回所有通知

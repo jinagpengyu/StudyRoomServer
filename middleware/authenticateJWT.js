@@ -1,6 +1,12 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
-
+const system_id = process.env.SYSTEM_ID;
+const {
+    systemCollection,
+    orderCollection
+} = require('../config/mongoDB');
+const { ObjectId } = require('mongodb');
+const MyDateTool = require('../Tool/MyDate');
 module.exports = {
     authenticateJWT (req, res, next) {
         // 从请求头中获取 Authorization 字段
@@ -36,6 +42,61 @@ module.exports = {
             next();
         } catch (e) {
             return res.status(403).json({ message: 'Invalid or expired token' });
+        }
+    },
+    async updateSeatStatus (req, res, next) {
+        try {
+            let result;
+            result = await systemCollection.findOne({
+                system_id: new ObjectId(system_id),
+                seat_update_time: MyDateTool.GetSelectDate().todayDate
+            });
+
+            if ( !result ) {
+                // 将日期在今天之前的所有使用中或未使用作为设置为已使用
+                result = await orderCollection.updateMany(
+                    {
+                        order_date: {
+                            $lt: MyDateTool.GetSelectDate().todayDate
+                        },
+                        status: {
+                            $in: ['使用中']
+                        }
+                    },
+                    {
+                        $set: {
+                            status: '已使用'
+                        }
+                    }
+                );
+                // 将日期在今天的未使用设置为使用中
+                result = await orderCollection.updateMany(
+                    {
+                        order_date: MyDateTool.GetSelectDate().todayDate,
+                        status: '未使用'
+                    },
+                    {
+                        $set: {
+                            status: '使用中'
+                        }
+                    }
+                );
+            }
+
+        } catch (e) {
+            console.error('更新数据失败')
+        } finally {
+            await systemCollection.updateOne(
+                {
+                    system_id: new ObjectId(system_id)
+                },
+                {
+                    $set: {
+                        seat_update_time: MyDateTool.GetSelectDate().todayDate
+                    }
+                }
+            )
+            next();
         }
     }
 }

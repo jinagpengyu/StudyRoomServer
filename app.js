@@ -18,13 +18,7 @@ const adminRouter = require('./router/AdminRouter');
 app.use(body_parser.json())
 app.use(cookie_parser())
 app.use(cors({ origin: 'http://localhost:5173', credentials:true}))
-// app.use(session({
-//     secret: 'jpy150790',
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false },
-//     // store:sessionStore
-// }));
+
 app.use(indexRouter);
 app.use(adminRouter);
 

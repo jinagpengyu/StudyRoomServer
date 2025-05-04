@@ -9,7 +9,7 @@ const assert = require("node:assert");
 module.exports = {
     /**
      * 预约一个座位
-     * @param req
+     * @param req -
      * @param res
      * @returns {Promise<*>}
      * @constructor
@@ -82,6 +82,13 @@ module.exports = {
             })
         }
     },
+    /**
+     * 获取特定用户的所有预约记录
+     * @param {Object} req - Express请求对象，需包含body参数：
+     * @param res - Express响应对象
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async GetAllOrderHistory(req,res){
         const user = req.user;
         const result = await orderCollection.find({
@@ -100,27 +107,41 @@ module.exports = {
             message:"获取成功"
         })
     },
+    /**
+     * 用户取消预约一个座位
+     * @param req
+     *  @param {string} req.body.order_id - 要取消的预约记录的ID
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async CancelOrder (req,res) {
         const user = req.user;
         const { order_id } = req.body;
-        const result = await orderCollection.updateOne(
-            {
-                _id: new ObjectId(order_id),
-                user_id: new ObjectId(user.user_id),
-                status: "正常"
-            },
-            { $set: { status: "取消" } }
-        );
+        try {
+            const result = await orderCollection.updateOne(
+                {
+                    _id: new ObjectId(order_id),
+                    user_id: new ObjectId(user.user_id),
+                    status: {$in: ['使用中','未使用']}
+                },
+                { $set: { status: "取消" } }
+            );
 
-        if (result.matchedCount === 0) {
+            if (result.matchedCount === 0) {
+                return res.status(400).json({
+                    message:"预约记录不存在"
+                })
+            }
+
+            return res.status(200).json({
+                message:"取消成功"
+            })
+        } catch (e) {
             return res.status(400).json({
-                message:"预约记录不存在"
+                message:"取消预约失败"
             })
         }
-
-        return res.status(200).json({
-            message:"取消成功"
-        })
     },
     /**
      * 获取预约指定座位用户的详细信息
@@ -135,14 +156,13 @@ module.exports = {
      *    - 用户不存在
      * @throws 当数据库查询失败时抛出异常
      */
-
     async GetOrderDetail(req,res){
         const {seat_id,order_date} = req.body;
         try {
             const order = await orderCollection.findOne({
                 seat_id:seat_id,
                 order_date:order_date,
-                status:"正常"
+                status: { $in: ["使用中","未使用"]}
             })
             if(!order){
                 throw new Error("该座位没有预约记录")
@@ -250,10 +270,12 @@ module.exports = {
             {
                 _id: new ObjectId(order_id),
                 user_id: new ObjectId(user.user_id),
-                status: "正常"
+                status: {
+                    $in: ['使用中','未使用']
+                }
             },
             { $set: { seat_id: target_seat_id } }
-        );
+        )
 
         if (result.matchedCount === 0) {
             return res.status(400).json({
