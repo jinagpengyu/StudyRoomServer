@@ -29,6 +29,7 @@ module.exports = {
             // 检查用户这一天是否已经预约过座位了
             result = await orderCollection.findOne(
                 {
+                    user_id: new ObjectId(user.user_id),
                     order_date: order_date,
                     status: status
                 }
@@ -53,7 +54,7 @@ module.exports = {
             result = await orderCollection.findOne({
                 seat_id: seat_id,
                 order_date: order_date,
-                status: "正常"
+                status: {$in: ['使用中', '未使用']}
             })
             if ( result ) {
                 return res.status(400).json({

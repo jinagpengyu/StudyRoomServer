@@ -44,6 +44,13 @@ module.exports = {
             return res.status(403).json({ message: 'Invalid or expired token' });
         }
     },
+    /**
+     * 每天刷新座位状态
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     async updateSeatStatus (req, res, next) {
         try {
             let result;
