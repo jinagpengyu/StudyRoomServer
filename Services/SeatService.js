@@ -9,44 +9,58 @@ const assert = require("node:assert");
 module.exports = {
     async OrderOneSeat(req,res){
         const {seat_id,order_date} = req.body;
-        const email = req.cookies.email;
-        const user_id = await GetUserId(email);
-        let result
-        result = await orderCollection.find({
-            seat_id:seat_id,
-            order_data:order_date,
-            status:"正常"
-        }).toArray()
-        if(result.length > 0){
-            return res.json({
-                status:400,
-                message:"该座位已被预订"
+        if ( !seat_id || !order_date ) {
+            return res.status(400).json({
+                message: "参数错误"
             })
         }
 
-        result = await orderCollection.find({
-            user_id:new Object(user_id),
-            order_date: order_date,
-            status:"正常"
-        }).toArray()
-        if(result.length > 0){
-            return res.json({
-                status:400,
-                message:"您已经在当天预约过座位了，一人一天最多预约一个座位"
+        try {
+            const user = req.user;
+
+            let result;
+            // 检查座位的可预约
+            result = await seatCollection.findOne({
+                seat_id: seat_id
+            })
+            if (result.seat_status === '暂停预约') {
+                return res.status(400).json({
+                    message: "该座位不可预约"
+                })
+            }
+            // 检查该座位有无人预约
+            result = await orderCollection.findOne({
+                seat_id: seat_id,
+                order_date: order_date,
+                status: "正常"
+            })
+            if ( result ) {
+                return res.status(400).json({
+                    message: "该座位有人预约"
+                })
+            }
+            // 插入预约记录
+            const status = order_date  === MyDateTool.GetSelectDate().todayDate ? "使用中" : "未使用";
+            result = await orderCollection.insertOne({
+                user_id: new ObjectId(user.user_id),
+                seat_id: seat_id,
+                order_date: order_date,
+                create_time: MyDateTool.GetSelectDate().todayDate,
+                status: status
+            });
+
+            if ( !result.acknowledged ) {
+                return res.status(500).json({ message: "预约失败，请稍后再试" });
+            }
+
+            return res.status(200).json({
+                message: "预约成功",
+            })
+        } catch (e) {
+            return res.status(400).json({
+                message: "Invalid or expired token"
             })
         }
-        // TODO 检查用户是否处于黑名单中
-        await orderCollection.insertOne({
-            user_id:new Object(user_id),
-            seat_id:seat_id,
-            order_date:order_date,
-            create_time:MyDateTool.GetSelectDate().todayDate,
-            status:"正常"
-        })
-        res.json({
-            status:200,
-            message:"预约成功"
-        })
     },
     async GetAllOrderHistory(req,res){
         const user = req.user;
