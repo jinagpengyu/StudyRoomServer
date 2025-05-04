@@ -24,52 +24,7 @@ indexRouter.post('/api/getAllPublishNotice', NoticeService.GetAllNotice)
 // 预约座位模块：预约一个座位
 indexRouter.post('/api/seat/OrderOne',SeatService.OrderOneSeat)
 // 预约座位模块：返回所选日期的座位预约情况
-indexRouter.post('/api/seat/Status',async (req,res) => {
-    const seat_count = []
-    const {date} = req.body;
-    const seatCollection = getNewCollection('seats');
-    const ordersCollection = getNewCollection('orders')
-    const seats = await seatCollection.find().toArray()
-    for(let i = 0;i < seats.length;i++) {
-        const searchJson = {
-            seat_id : seats[i].seat_id,
-            order_date : date,
-        }
-        if(seats[i].seat_status === "暂停预约"){
-            const pushJson = {
-                seat_id:seats[i].seat_id,
-                status:"暂停预约"
-            }
-            seat_count.push(pushJson)
-        }else if(seats[i].seat_status === "可预约"){
-            const result = await ordersCollection.find(searchJson).toArray()
-            if(result.length === 0){
-                const pushJson = {
-                    seat_id:seats[i].seat_id,
-                    status:"可预约"
-                }
-                seat_count.push(pushJson)
-            }else{
-                let pushJson = {
-                    seat_id:seats[i].seat_id,
-                    status:"可预约"
-                }
-                for (const resultElement of result) {
-                    if(resultElement.status === "正常"){
-                        pushJson.status = "已预约"
-                    }
-                }
-                seat_count.push(pushJson)
-
-            }
-        }
-
-    }
-    res.json({
-        status:200,
-        data:seat_count
-    })
-})
+indexRouter.post('/api/seat/Status',SeatService.GetAllSeatOrdersByDate)
 // 预约座位模块：换座
 indexRouter.post('/user/changeSeat',SeatService.UserChangeSeat);
 /**

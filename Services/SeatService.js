@@ -7,8 +7,16 @@ const {deleteSpecificUser} = require("../router/api/UserInfo");
 const assert = require("node:assert");
 
 module.exports = {
+    /**
+     * 预约一个座位
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async OrderOneSeat(req,res){
         const {seat_id,order_date} = req.body;
+        const status = order_date  === MyDateTool.GetSelectDate().todayDate ? "使用中" : "未使用";
         if ( !seat_id || !order_date ) {
             return res.status(400).json({
                 message: "参数错误"
@@ -17,8 +25,21 @@ module.exports = {
 
         try {
             const user = req.user;
-
             let result;
+            // 检查用户这一天是否已经预约过座位了
+            result = await orderCollection.findOne(
+                {
+                    order_date: order_date,
+                    status: status
+                }
+            );
+
+            if ( result ) {
+                return res.status(400).json({
+                    message: '你已经在该日期下预约过一个座位了'
+                })
+            }
+
             // 检查座位的可预约
             result = await seatCollection.findOne({
                 seat_id: seat_id
@@ -40,7 +61,6 @@ module.exports = {
                 })
             }
             // 插入预约记录
-            const status = order_date  === MyDateTool.GetSelectDate().todayDate ? "使用中" : "未使用";
             result = await orderCollection.insertOne({
                 user_id: new ObjectId(user.user_id),
                 seat_id: seat_id,
@@ -367,6 +387,71 @@ module.exports = {
 
         } catch (e) {
             return res.status(409).json({
+                message: "获取失败," + e.message
+            })
+        }
+    },
+    /**
+     * 获取某天的所有座位预约情况，包括使用中，暂停预约等状态
+     * @param req
+     * @param res
+     * @returns {Promise<void>}
+     * @constructor
+     */
+    async GetAllSeatOrdersByDate(req,res){
+        const { date } = req.body;
+        try {
+            const target_status = date === MyDateTool.GetSelectDate().todayDate ? '使用中': '未使用';
+            const result = await seatCollection.aggregate([
+                {
+                    $lookup: {
+                        from: 'orders',
+                        localField: 'seat_id',
+                        foreignField: 'seat_id',
+                        as: 'orders',
+                        pipeline: [
+                            {
+                                $match: {
+                                    order_date: date,
+                                    status: target_status
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        seat_id: 1,
+                        order_status: {
+                            $cond: {
+                                if: { $eq: [ '$seat_status' , '暂停预约']},
+                                then: '暂停预约',
+                                else: {
+                                    $cond: {
+                                        if: { $eq: [ { $size: "$orders" }, 0 ] },
+                                        then: "可预约",
+                                        else: "使用中"
+                                    }
+                                }
+                            }
+                        },
+                    }
+                }
+            ]).toArray();
+
+            if ( result.length <= 0 ) {
+                return res.status(400).json({
+                    message: "获取失败," + e.message
+                })
+            }
+
+            return res.status(200).json({
+                data: result,
+                message: "获取成功"
+            })
+        } catch (e) {
+            return res.status(400).json({
                 message: "获取失败," + e.message
             })
         }
