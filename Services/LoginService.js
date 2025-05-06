@@ -5,6 +5,15 @@ const { ObjectId } = require('mongodb')
 const system_id = process.env.SYSTEM_ID;
 
 module.exports = {
+    /**
+     * 登录服务
+     * @param req
+     *  @param {string} req.email 用户邮箱
+     *  @param {string} req.password 密码
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async LoginService(req, res) {
         try {
             // 1. 解析请求参数
@@ -33,13 +42,6 @@ module.exports = {
                     message: '密码错误'
                 })
             }
-            // if(user.password !== password){
-            //     return res.json({
-            //         status: 400,
-            //         message: '密码错误'
-            //     })
-            // }
-            // res.cookie('email', email, { httpOnly: true });
             // 4. 生成JWT token
             const token = jwt.sign({
                 user:{
