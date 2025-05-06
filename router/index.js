@@ -49,4 +49,6 @@ indexRouter.post('/user/getAllReport' ,ReportService.GetAllReport_User)
 indexRouter.post('/tool/getSelectDate',SeatService.GetSelectDate)
 // 返回某个日期下的所有可预约的座位
 indexRouter.post('/user/getActiveSeat',SeatService.GetAllActiveSeat)
+// 注销用户
+indexRouter.post('/user/deleteSelf',UserInfoService.DeleteUser)
 module.exports = indexRouter

@@ -23,6 +23,12 @@ module.exports = {
             let user = await usersCollection.findOne({
                 email:email
             })
+            // 判断用户的账户是不是删除状态
+            if ( user.status === '删除' ) {
+                return res.status(301).json({
+                    message: '用户不存在'
+                })
+            }
             // 判断客户端的可用状态
             const system = await systemCollection.findOne({
                 _id: new ObjectId(system_id)
@@ -34,11 +40,11 @@ module.exports = {
                 })
             }
 
+
             // 3. 验证密码
             const valid = await bcrypt.compare(password, user.password);
             if ( !valid ) {
-                return res.status(401).json({
-                    status: 401,
+                return res.status(402).json({
                     message: '密码错误'
                 })
             }

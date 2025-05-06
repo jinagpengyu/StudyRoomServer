@@ -210,12 +210,21 @@ module.exports = {
             });
         }
     },
+    /**
+     * 删除用户
+     * @param req
+     *  @param {string} req.user.user_id
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async DeleteUser(req,res){
-        const { user_id } = req.body;
+        // const { user_id } = req.body;
+        const user = req.user;
         try{
             // 软删除
             const result = await usersCollection.updateOne(
-                {_id : new ObjectId(user_id)},
+                {_id : new ObjectId(user.user_id)},
                 {$set:{status:'删除'}}
             )
             if(result.matchedCount === 0){
