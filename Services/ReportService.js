@@ -1,10 +1,7 @@
-const {reportCollection} = require('../config/mongoDB')
+const {reportCollection} = require('../config/mongoDB');
 const { ObjectId } = require('mongodb');
 const {NowYYMMDDString} = require("../Tool/MyDate");
 const MyDateTool = require("../Tool/MyDate");
-const {GetUserId} = require("../Tool/UserTool");
-const assert = require("node:assert");
-const {deleteSpecificUser} = require("../router/api/UserInfo");
 module.exports = {
     async CreateNewReport(req,res){
         try {
