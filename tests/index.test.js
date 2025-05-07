@@ -55,3 +55,21 @@ describe('测试用户接口' , () => {
     })
 
 })
+
+describe('POST 用户获取公告 /api/getAllPublishNotice' , () => {
+
+    it('获取所有公告', async () => {
+        const response = await request(app)
+            .post('/api/getAllPublishNotice')
+            .set('Authorization', `Bearer ${token}`)
+            .set('ContentType','application/json');
+        expect(response.status).toBe(200);
+        expect(response.body?.data.length).toBeGreaterThan(0);
+        const data = response.body?.data;
+        for (const item of data) {
+            expect(item.status).not.toBe('删除');
+            expect(['所有人','黑名单']).toContain(item.visible)
+            expect(['正常用户']).not.toContain(item.visible)
+        }
+    })
+})

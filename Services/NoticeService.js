@@ -1,5 +1,6 @@
 const {
-    noticeCollection
+    noticeCollection,
+    usersCollection
 } = require('../config/mongoDB')
 const {
     ObjectId
@@ -37,13 +38,46 @@ module.exports = {
             return res.status(500).json({ error: '公告插入失败: ' + error.message });
         }
     },
+    /**
+     * 返回所有有效的通知，但是过滤掉不能被用户身份看见的通知。
+     *
+     * 实例说明：
+     *  - 指定给黑名单用户查看的通知，正常用户不能查看
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
     async GetAllNotice(req,res) {
-        try {// TODO 要按身份返回不同的公告
-            const result = await noticeCollection.find(
-                {
-                    status: {$ne: "删除"}
+        try {// 要按身份返回不同的公告
+            const user = await usersCollection.findOne({
+                _id: new ObjectId(req.user.user_id)
+            });
+            let result;
+            if ( user.role === 'user' ) {
+                if ( user.status === '正常' ) {
+                    result = await noticeCollection.find(
+                        {
+                            status: {$ne: "删除"},
+                            visible: {$ne: "黑名单"},
+                        }
+                    ).toArray();
+                } else if ( user.status === '黑名单' ){
+                    result = await noticeCollection.find(
+                        {
+                            status: {$ne: "删除"},
+                            visible: {$ne: '正常用户'}
+                        }
+                    ).toArray();
                 }
-            ).toArray();
+            } else if ( user.role === 'admin') {
+                result = await noticeCollection.find(
+                    {
+                        status: {$ne: "删除"},
+                    }
+                ).toArray();
+            }
+
             return res.status(200).json({
                 data:result
             });

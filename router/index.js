@@ -29,11 +29,7 @@ indexRouter.post('/api/seat/OrderOne',SeatService.OrderOneSeat)
 indexRouter.post('/api/seat/Status',SeatService.GetAllSeatOrdersByDate)
 // 预约座位模块：换座
 indexRouter.post('/user/changeSeat',SeatService.UserChangeSeat);
-/**
- * @description 修改用户名
- * @route POST /api/user/change/username
- * @permission user
- */
+// 修改用户名
 indexRouter.post('/api/user/change/username',UserInfoService.UpdateUsername)
 // 修改邮箱
 indexRouter.post('/api/user/change/email',UserInfoService.UpdateEmail)
@@ -43,7 +39,6 @@ indexRouter.post('/user/getAllOrders',[UpdateSeatStatus], SeatService.GetAllOrde
 indexRouter.post('/user/cancelOrder',SeatService.CancelOrder)
 // 添加一个投诉
 indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
-
 // 获取所有的个人投诉
 indexRouter.post('/user/getAllReport' ,ReportService.GetAllReport_User)
 // 获取今明的日期
