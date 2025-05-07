@@ -44,7 +44,7 @@ module.exports = {
         const result = await conventionCollection.find({
             status:{$ne:"删除"}
         }).toArray();
-        return res.json({
+        return res.status(200).json({
             status:200,
             data:result
         })

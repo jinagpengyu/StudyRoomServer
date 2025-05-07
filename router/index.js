@@ -13,6 +13,8 @@ const { UpdateSeatStatus } = require('./interceptor/SeatInterceptor')
 indexRouter.post('/api/register',LoginService.RegisterUser)
 // 登录
 indexRouter.post('/api/login',JWTService.updateSeatStatus ,LoginService.LoginService);
+// 获取所有的公约
+indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
 // 中间件
 indexRouter.use(JWTService.authenticateJWT)
 // 退出登录
@@ -41,8 +43,7 @@ indexRouter.post('/user/getAllOrders',[UpdateSeatStatus], SeatService.GetAllOrde
 indexRouter.post('/user/cancelOrder',SeatService.CancelOrder)
 // 添加一个投诉
 indexRouter.post('/user/addNewReport',ReportService.CreateNewReport)
-// 获取所有的公约
-indexRouter.post('/user/getAllConvention',ConventionService.GetAllConventions)
+
 // 获取所有的个人投诉
 indexRouter.post('/user/getAllReport' ,ReportService.GetAllReport_User)
 // 获取今明的日期
@@ -50,5 +51,5 @@ indexRouter.post('/tool/getSelectDate',SeatService.GetSelectDate)
 // 返回某个日期下的所有可预约的座位
 indexRouter.post('/user/getActiveSeat',SeatService.GetAllActiveSeat)
 // 注销用户
-indexRouter.post('/user/deleteSelf',UserInfoService.DeleteUser)
+indexRouter.post('/user/deleteSelf',UserInfoService.UserDeleteSelf)
 module.exports = indexRouter
