@@ -16,6 +16,8 @@ adminRouter.use(
 adminRouter.post('/admin/get_all_notice',NoticeService.GetAllNotice)
 // 所有的用户信息
 adminRouter.post('/admin/get_user_info',UserInfoService.GetAllUserInfo)
+// 修改用户的密码
+adminRouter.post('/admin/updateUserPassword',JWTService.verifyAdminRoleByPassword,UserInfoService.UpdatePassword)
 // 返回所有的座位信息
 adminRouter.post('/admin/getAllSeats',SeatService.GetAllSeatInfo)
 // 为用户的投诉报告创建一个回复
@@ -54,4 +56,5 @@ adminRouter.post('/admin/createNewConvention',ConventionService.CreateNewConvent
 adminRouter.post('/admin/closeClient',SystemService.UpdateClientStatus);
 // 获取当前客户端的状态
 adminRouter.post('/admin/getClientStatus',SystemService.GetClientStatus);
+
 module.exports = adminRouter;

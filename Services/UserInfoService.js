@@ -1,7 +1,7 @@
 const { GetUserId } = require("../Tool/UserTool");
 const { usersCollection } = require('../config/mongoDB');
 const { ObjectId } = require("mongodb");
-const {compare} = require("bcrypt"); // 假设使用 MongoDB 的 ObjectID
+const {compare, hash} = require("bcrypt"); // 假设使用 MongoDB 的 ObjectID
 
 module.exports = {
     /**
@@ -151,6 +151,40 @@ module.exports = {
             }
         } catch (e) {
             console.error(e); // 打印错误日志
+            return res.status(500).json({
+                status: 500,
+                message: e.message || "Internal Server Error"
+            });
+        }
+    },
+    /**
+     * 管理员修改用户的密码
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     * @constructor
+     */
+    async UpdatePassword(req,res) {
+        const { update_password , user_id} = req.body;
+        try {
+            const bcryptPassword = await hash(update_password, 10);
+            const result = await usersCollection.updateOne(
+                { _id: new ObjectId(user_id) },
+                { $set: { password: bcryptPassword } }
+            );
+
+            if ( result.matchedCount === 0 ) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "User not found"
+                });
+            }
+
+            return res.json({
+                status: 200,
+                message: "Password updated successfully"
+            });
+        } catch (e) {
             return res.status(500).json({
                 status: 500,
                 message: e.message || "Internal Server Error"

@@ -3,10 +3,11 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const system_id = process.env.SYSTEM_ID;
 const {
     systemCollection,
-    orderCollection
+    orderCollection, usersCollection
 } = require('../config/mongoDB');
 const { ObjectId } = require('mongodb');
 const MyDateTool = require('../Tool/MyDate');
+const {compare} = require("bcrypt");
 module.exports = {
     /**
      * 从token中提取user 信息
@@ -55,6 +56,33 @@ module.exports = {
         try {
             if (!user || user.role !== 'admin') {
                 return res.status(403).json({ message: 'Access denied' });
+            }
+            next();
+        } catch (e) {
+            return res.status(403).json({ message: 'Invalid or expired token' });
+        }
+    },
+    /**
+     * 加强版验证管理员身份，要输入管理员的账户密码
+     * @param req
+     *  @param req.user - 用户信息
+     *  @param req.body.admin_password - 请求体
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    async verifyAdminRoleByPassword (req, res, next) {
+        try {
+            const user = req.user;
+            const { admin_password } = req.body;
+            let result;
+            result = await usersCollection.findOne({
+                _id: new ObjectId(user.user_id)
+            })
+
+            const valid = await compare(admin_password, result.password);
+            if ( !valid ) {
+                return res.status(403).json({ message: 'Invalid password' });
             }
             next();
         } catch (e) {
