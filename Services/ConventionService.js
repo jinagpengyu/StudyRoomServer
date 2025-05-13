@@ -1,5 +1,4 @@
 const { conventionCollection } = require('../config/mongoDB')
-const {convention} = require("../Models/Convention");
 const { NowYYMMDDString } = require('../Tool/MyDate');
 const { ObjectId } = require('mongodb');
 const MyDateTool = require('../Tool/MyDate');
